@@ -1,5 +1,4 @@
-Big data project at EPFL 
-Assisted Promotion Tool
+Big data project at EPFL - Assisted Promotion Tool
 =======================
 
 1.	Problematic
