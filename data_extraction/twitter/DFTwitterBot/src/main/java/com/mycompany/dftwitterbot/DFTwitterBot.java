@@ -146,7 +146,7 @@ public class DFTwitterBot implements Serializable {
     private static void getTwitterAccess(DFTwitterBot dftb) throws IOException, TwitterException {
 // The factory instance is re-useable and thread safe.
         dftb.twitter = new TwitterFactory().getInstance();
-        dftb.twitter.setOAuthConsumer("PCFBj9LcpRurejDkzylTxg", "piBLUgyW3dTp7471yIL8h3c1cwXkvTllCkNIBA5pb5g");
+        dftb.twitter.setOAuthConsumer("consumer_key", "consumer_secret");
         RequestToken requestToken = dftb.twitter.getOAuthRequestToken();
         dftb.aT = null;
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
