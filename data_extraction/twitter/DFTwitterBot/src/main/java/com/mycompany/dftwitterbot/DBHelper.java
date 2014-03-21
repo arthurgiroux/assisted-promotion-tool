@@ -55,7 +55,7 @@ public class DBHelper {
 // or
         MongoClient mongoClient = new MongoClient(url, port);
 
-        db = mongoClient.getDB(DBNAME);
+        db = mongoClient.getDB("test");
         tweetsCollection = db.getCollection(TWEETSCOLLECTION);
     }
 
@@ -79,7 +79,7 @@ public class DBHelper {
 
     }
 
-    public List<String> readAlbumNamesToProcess() {
+    public List<String> readTwitterAccountsToProcess() {
         List<String> albumNames = new ArrayList<String>();
 
         DBCollection coll = db.getCollection(ALBUMSCOLLECTION);

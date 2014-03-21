@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import twitter4j.PagableResponseList;
+import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 
@@ -47,7 +48,7 @@ public class DFTwitterBot implements Serializable {
         }
 
         //MongoDb Connection
-        //DBHelper dbHelper = new DBHelper("localhost", 27017);
+        //DBHelper dbHelper = new DBHelper("54.72.12.78", 27017);
         //dbEnabled = true;
         if (dbEnabled) {
             //List<String> keywordsList = dbHelper.readKeywords();
@@ -59,33 +60,22 @@ public class DFTwitterBot implements Serializable {
         }
     }
 
-    private static void menu(DFTwitterBot dftb) throws TwitterException, IOException {
+    private static void menu(DFTwitterBot dftb) throws TwitterException, IOException, InterruptedException {
         System.out.println("Please enter your query:");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String option = br.readLine();
 
-        viewQuery(dftb, option);
+        //viewQuery(dftb, option);
+        //viewTimeline(dftb, option);
+        batchProcessing(null, dftb, null);
 
     }
 
-    private static void viewTimeline(DFTwitterBot dftb) throws TwitterException {
-        List<Status> statuses = dftb.twitter.getUserTimeline("DaftPunk");
+    private static void viewTimeline(DFTwitterBot dftb, String queryString) throws TwitterException {
+        Paging paging = new Paging(33, 100);// 2 is ‘page 2 of the results’, 40 is the number of results in the page
+        List<Status> statuses = dftb.twitter.getUserTimeline(queryString, paging);
         System.out.println("Showing friends timeline.");
-        for (Status status : statuses) {
-            System.out.println("User : " + status.getUser().getScreenName() + " Date : " + status.getCreatedAt() + " Text : " + status.getText() + " Retweet Count : " + status.getRetweetCount());//+ "".equals(status.getPlace()) ? "" : status.getPlace().getCountry());
-
-        }
-    }
-
-    private static void viewQuery(DFTwitterBot dftb, String queryString) throws TwitterException {
-        Query query = new Query(queryString);
-        //query.setCount(10);
-        //query.setQuery("source:twitter4j yusukey");
-        //query.setSince("2013-12-10");
-        QueryResult queryResult = dftb.twitter.search(query);
-        List<Status> statuses = queryResult.getTweets();
-        System.out.println("Showing query result");
         for (Status status : statuses) {
             System.out.println("User : " + status.getUser().getScreenName() + " Date : " + status.getCreatedAt() + " Text : " + status.getText() + " Retweet Count : " + status.getRetweetCount());//+ "".equals(status.getPlace()) ? "" : status.getPlace().getCountry());
         }
@@ -129,20 +119,6 @@ public class DFTwitterBot implements Serializable {
 
     }
 
-//    private static void updateStatus(DFTwitterBot dftb) throws TwitterException, IOException {
-//        String statusUpdate = null;
-//
-//        System.out.println("Please enter a status:");
-//        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//        statusUpdate = br.readLine();
-//        if (statusUpdate.length() > 0) {
-//            StatusUpdate su = new StatusUpdate(statusUpdate);
-//            Status status = dftb.twitter.updateStatus(su);
-//            System.out.println("Successfully updated the status to [" + status.getText() + "].");
-//        } else {
-//            menu(dftb);
-//        }
-//    }
     private static void getTwitterAccess(DFTwitterBot dftb) throws IOException, TwitterException {
 // The factory instance is re-useable and thread safe.
         dftb.twitter = new TwitterFactory().getInstance();
@@ -191,21 +167,35 @@ public class DFTwitterBot implements Serializable {
 
     }
 
-    private static void batchProcessing(DBHelper dbHelper, DFTwitterBot dftb, List<String> keywordsList) throws TwitterException {
-        List<String> albumList = dbHelper.readAlbumNamesToProcess();
-
-        for (String albumName : albumList) {
-            Query query = new Query("q=" + albumName);
-            //query.setCount(10);
-            //query.setQuery("source:twitter4j yusukey");
-            //query.setSince("2013-12-10");
-            QueryResult queryResult = dftb.twitter.search(query);
-            List<Status> statuses = queryResult.getTweets();
-            System.out.println("Showing query result");
-            for (Status status : statuses) {
-                System.out.println("User : " + status.getUser().getScreenName() + " Date : " + status.getCreatedAt() + " Text : " + status.getText() + " Retweet Count : " + status.getRetweetCount());//+ "".equals(status.getPlace()) ? "" : status.getPlace().getCountry());
-                if (dbEnabled) {
-                    storeData(dbHelper, keywordsList, status.getUser().getScreenName(), status.getCreatedAt(), status.getText(), status.getRetweetCount(), status.getPlace() == null ? null : status.getPlace().getCountry());
+    private static void batchProcessing(DBHelper dbHelper, DFTwitterBot dftb, List<String> keywordsList) throws TwitterException, InterruptedException {
+        //List<String> twitterAccountsList = dbHelper.readTwitterAccountsToProcess();
+        List<String> twitterAccountsList = new ArrayList<String>();
+        twitterAccountsList.add("Coldplay");
+        twitterAccountsList.add("50cent");
+        twitterAccountsList.add("Daftpunk");
+        
+        
+        for (String twitterAccount : twitterAccountsList) {
+            for (int i = 1; i < 34; i++) {
+                Paging paging = new Paging(i, 100);// 2 is ‘page 2 of the results’, 100 is the number of results in the page
+                List<Status> statuses = new ArrayList< Status>();
+                try {
+                    statuses = dftb.twitter.getUserTimeline(twitterAccount, paging);
+                    System.out.println("Page " + i + " for " + twitterAccount);
+                } catch (Exception e) {
+                    System.out.println("Rate limit");
+                    Thread.sleep(900001);//15min
+                    statuses = dftb.twitter.getUserTimeline(twitterAccount, paging);
+                    System.out.println("Page " + i + " for " + twitterAccount);
+                }
+                if (statuses.isEmpty()) {
+                    System.out.println("Finished parsing for " + twitterAccount);
+                    break;
+                }
+                System.out.println("Showing friends timeline.");
+                for (Status status : statuses) {
+                    System.out.println("User : " + status.getUser().getScreenName() + " Date : " + status.getCreatedAt() + " Text : " + status.getText() + " Retweet Count : " + status.getRetweetCount());//+ "".equals(status.getPlace()) ? "" : status.getPlace().getCountry());
+                    //storeData(dbHelper, keywordsList, status.getUser().getScreenName(), status.getCreatedAt(), status.getText(), status.getRetweetCount(), null/*country*/);
                 }
             }
         }
