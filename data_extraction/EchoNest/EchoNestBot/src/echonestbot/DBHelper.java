@@ -3,17 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.dftwitterbot;
+package echonestbot;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -24,26 +20,20 @@ public class DBHelper {
     //Collections
     private static final String DBNAME = "promotionToolDB";
     private static final String TWEETSCOLLECTION = "tweetsCollection";
-    private static final String ALBUMSCOLLECTION = "albumsCollection";
+    private static final String ARTISTSCOLLECTION = "artistsCollection";
     private static final String KEYWORDSCOLLECTION = "keywordsCollection";
 
     //Keywords attributes
     private static final String KEYWORDWORD = "word";
-
-    //Album attributes
-    private static final String ALBUMNAME = "name";
-
-    //Tweet attributes
-    public static final String TWEETSOURCE = "source";
-    public static final String TWEETDATE = "date";
-    public static final String TWEETTEXT = "text";
-    public static final String TWEETRETWEETCOUNT = "retweetCount";
-    public static final String TWEETCOUNTRY = "country";
-    public static final String TWEETKEYWORDS = "keywords";
-    public static final String TWEETKEYWORD = "keyword";
+    
+    //Artist Attributes
+    private static final String ARTISTNAME = "name";
+    private static final String ARTISTFAMILIARITY = "familiarity";
+    private static final String ARTISTHOTTTNESSS = "hotttnesss";
+    private static final String ARTISTCOUNTRY = "country";
 
     private DB db;
-    private DBCollection tweetsCollection;
+    private DBCollection artistsCollection;
 
     public DB getDb() {
         return db;
@@ -56,37 +46,28 @@ public class DBHelper {
         MongoClient mongoClient = new MongoClient(url, port);
 
         db = mongoClient.getDB(DBNAME);
-        tweetsCollection = db.getCollection(TWEETSCOLLECTION);
+        artistsCollection = db.getCollection(ARTISTSCOLLECTION);
     }
 
-    void write(String source, Date createdAt, String text, List<String> keywordsFound, int retweetCount, String country) {
+    void writeArtistEchoNest(String name, Double familiarity, Double hotttnesss, String country) {
 
-        BasicDBObject doc = new BasicDBObject(TWEETSOURCE, source).
-                append(TWEETDATE, createdAt).
-                append(TWEETTEXT, text).
-                append(TWEETRETWEETCOUNT, retweetCount).
-                append(TWEETCOUNTRY, country);
-
-        if (!keywordsFound.isEmpty()) {
-            BasicDBObject keywordsList = new BasicDBObject();
-            for (String keyword : keywordsFound) {
-                keywordsList.append(TWEETKEYWORD, keyword);
-            }
-            doc.append(TWEETKEYWORDS, keywordsList);
-        }
-
-        tweetsCollection.insert(doc);
+        BasicDBObject doc = new BasicDBObject(ARTISTNAME, name).
+                append(ARTISTFAMILIARITY, familiarity).
+                append(ARTISTHOTTTNESSS, hotttnesss).
+                append(ARTISTCOUNTRY, country);
+        
+        artistsCollection.insert(doc);
 
     }
 
-    public List<String> readTwitterAccountsToProcess() {
+    /*public List<String> readTwitterAccountsToProcess() {
         List<String> albumNames = new ArrayList<String>();
 
-        DBCollection coll = db.getCollection(ALBUMSCOLLECTION);
+        DBCollection coll = db.getCollection(ARTISTSCOLLECTION);
         DBCursor cursor = coll.find();
         try {
             while (cursor.hasNext()) {
-                albumNames.add(cursor.next().get(ALBUMNAME).toString());
+                albumNames.add(cursor.next().get(ARTISTNAME).toString());
             }
         } finally {
             cursor.close();
@@ -111,6 +92,6 @@ public class DBHelper {
 
         return albumNames;
 
-    }
+    }*/
 
 }

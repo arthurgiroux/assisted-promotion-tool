@@ -48,11 +48,11 @@ public class DFTwitterBot implements Serializable {
         }
 
         //MongoDb Connection
-        //DBHelper dbHelper = new DBHelper("54.72.12.78", 27017);
-        //dbEnabled = true;
+        DBHelper dbHelper = new DBHelper("localhost", 27017);
+        dbEnabled = true;
         if (dbEnabled) {
-            //List<String> keywordsList = dbHelper.readKeywords();
-            //batchProcessing(dbHelper, dftb, keywordsList);
+            List<String> keywordsList = dbHelper.readKeywords();
+            batchProcessing(dbHelper, dftb, keywordsList);
         } else {
             while (true) {
                 menu(dftb);
@@ -195,7 +195,7 @@ public class DFTwitterBot implements Serializable {
                 System.out.println("Showing friends timeline.");
                 for (Status status : statuses) {
                     System.out.println("User : " + status.getUser().getScreenName() + " Date : " + status.getCreatedAt() + " Text : " + status.getText() + " Retweet Count : " + status.getRetweetCount());//+ "".equals(status.getPlace()) ? "" : status.getPlace().getCountry());
-                    //storeData(dbHelper, keywordsList, status.getUser().getScreenName(), status.getCreatedAt(), status.getText(), status.getRetweetCount(), null/*country*/);
+                    storeData(dbHelper, keywordsList, status.getUser().getScreenName(), status.getCreatedAt(), status.getText(), status.getRetweetCount(), null/*country*/);
                 }
             }
         }
