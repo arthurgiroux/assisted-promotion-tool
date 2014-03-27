@@ -9,8 +9,10 @@ import com.echonest.api.v4.Artist;
 import com.echonest.api.v4.ArtistParams;
 import com.echonest.api.v4.EchoNestAPI;
 import com.echonest.api.v4.EchoNestException;
+import com.echonest.api.v4.Song;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,16 +29,19 @@ public class EchoNestBot {
     public static void main(String[] args) throws EchoNestException, UnknownHostException, InterruptedException {
 
         //MongoDb Connection
-        DBHelper dbHelper = new DBHelper("localhost", 27017);
-        EchoNestAPI en = new EchoNestAPI("PASSKEY");
+        //DBHelper dbHelper = new DBHelper("localhost", 27017);
+        EchoNestAPI en = new EchoNestAPI("ABQ1ZFO6BNOIHISN9");
 
         List<String> listGenres = en.listGenres();
         System.out.println(listGenres.size() + " genres loaded");
 
-        Set<Artist> artistsList = new HashSet<Artist>();
-        
+        Set<CustomArtist> artistsList = new HashSet<CustomArtist>();
+
+        Date timeLastSleep = new Date();
         long counter = 1;
-        for (String genre : listGenres) {
+        for (int j = 0; j < 1; j++) {
+            String genre = listGenres.get(j);
+            //for (String genre : listGenres) {
             System.out.println("Number of artists : " + artistsList.size() + " " + genre);
             for (int i = 0; i < 9; i++) {
                 ArtistParams p = new ArtistParams();
@@ -45,13 +50,15 @@ public class EchoNestBot {
                 p.includeHotttnesss();
                 p.includeFamiliarity();
                 p.includeArtistLocation();
+                p.setEndYearAfter(2010);
                 p.setMinHotttnesss(0.5f);
                 p.addGenre(genre);
                 List<Artist> artists = new ArrayList<>();
 
                 if (counter % 115 == 0) {
                     System.out.println("start sleep");
-                    Thread.sleep(60001);//1min
+                    Thread.sleep(65001 - (new Date().getTime() - timeLastSleep.getTime()));//1min - 
+                    timeLastSleep = new Date();
                     System.out.println("processing...");
                 }
 
@@ -65,18 +72,53 @@ public class EchoNestBot {
                     Thread.sleep(60001);//1min
                 }
 
-                if (artists != null && !artists.isEmpty()) {
-                    artistsList.addAll(artists);
-                } else {
+                for (Artist artist : artists) {
+                    CustomArtist custArtist = new CustomArtist();
+                    custArtist.setName(artist.getName());
+                    custArtist.setFamiliarity(artist.getFamiliarity());
+                    custArtist.setHotness(artist.getHotttnesss());
+                    custArtist.setCountry(artist.getArtistLocation().getCountry());
+                    custArtist.setCity(artist.getArtistLocation().getCity());
+                    custArtist.setGenre(genre);
+                    List<Song> listSongs = artist.getSongs();
+                    for (Song song : listSongs) {
+                        counter += 5;
+                        if (counter > 80) {
+                            System.out.println("start sleep");
+                            Thread.sleep(65001 - (new Date().getTime() - timeLastSleep.getTime()));//1min - 
+                            timeLastSleep = new Date();
+                            System.out.println("processing...");
+                        }
+
+                        CustomSong custSong = new CustomSong();
+                        custSong.setSongName(song.getTitle());
+                        custSong.setSongDuration(song.getDuration());
+                        custSong.setSongCountry(custArtist.getCountry());
+
+                        String buckets[] = {"song_hotttnesss", "song_type"};
+                        song.fetchBuckets(buckets, false);
+                        Double hotness = song.getDouble("song_hotttnesss");
+                        custSong.setSongHotness(hotness);
+                        List<String> typeList = (List<String>) song.getObject("song_type");
+                        custSong.setSongTypeList(typeList);
+                        if (custSong.getSongHotness() > 0.4f) {
+                            custArtist.getCustomSongs().add(custSong);
+                        }
+                    }
+                    System.out.println(custArtist.toString() + custArtist.getName());
+                    artistsList.add(custArtist);
+                }
+
+                if (artists == null || !artists.isEmpty()) {
                     break;
                 }
             }
         }
 
         System.out.println(artistsList.size());
-        for (Artist artist : artistsList) {
-            dbHelper.writeArtistEchoNest(artist.getName(), artist.getFamiliarity(), artist.getHotttnesss(), artist.getArtistLocation().getCountry() );
-            System.out.println(artist.getName() + " || " + artist.getFamiliarity() + " || " + artist.getHotttnesss() + " || " + artist.getArtistLocation().getCountry());
+        for (CustomArtist artist : artistsList) {
+            System.out.println(artist.toString());
+            //dbHelper.writeArtistEchoNest(artist.getName(), artist.getFamiliarity(), artist.getHotttnesss(), artist.getArtistLocation().getCountry() );
         }
 
     }
