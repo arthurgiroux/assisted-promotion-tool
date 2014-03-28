@@ -16,8 +16,12 @@ import java.util.Set;
  */
 public class CustomArtist {
     private String name;
-    private Set<CustomSong> customSongs = new HashSet<CustomSong>();
+    //private Set<CustomSong> customSongs = new HashSet<CustomSong>();
     private Double hotness;
+    private String country;
+    private String city;
+    private Double familiarity;
+    private String genre;
 
     public Double getHotness() {
         return hotness;
@@ -26,10 +30,7 @@ public class CustomArtist {
     public void setHotness(Double hotness) {
         this.hotness = hotness;
     }
-    private String country;
-    private String city;
-    private Double familiarity;
-    private String genre;
+    
 
     public String getGenre() {
         return genre;
@@ -47,13 +48,13 @@ public class CustomArtist {
         this.name = name;
     }
 
-    public Set<CustomSong> getCustomSongs() {
+    /**public Set<CustomSong> getCustomSongs() {
         return customSongs;
-    }
+    }*/
 
-    public void setCustomSongs(Set<CustomSong> customSongs) {
+    /*public void setCustomSongs(Set<CustomSong> customSongs) {
         this.customSongs = customSongs;
-    }
+    }*/
 
     public String getCountry() {
         return country;

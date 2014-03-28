@@ -19,6 +19,15 @@ public class CustomSong {
     private Double songHotness;
     private String songCountry;
     private Double songDuration;
+    private CustomArtist customArtist;
+
+    public CustomArtist getCustomArtist() {
+        return customArtist;
+    }
+
+    public void setCustomArtist(CustomArtist customArtist) {
+        this.customArtist = customArtist;
+    }
 
     public String getSongName() {
         return songName;

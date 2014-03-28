@@ -29,7 +29,8 @@ public class EchoNestBot {
     public static void main(String[] args) throws EchoNestException, UnknownHostException, InterruptedException {
 
         //MongoDb Connection
-        //DBHelper dbHelper = new DBHelper("localhost", 27017);
+        DBHelper dbHelper = new DBHelper("localhost", 27017);
+        
         EchoNestAPI en = new EchoNestAPI("ABQ1ZFO6BNOIHISN9");
 
         List<String> listGenres = en.listGenres();
@@ -80,10 +81,11 @@ public class EchoNestBot {
                     custArtist.setCountry(artist.getArtistLocation().getCountry());
                     custArtist.setCity(artist.getArtistLocation().getCity());
                     custArtist.setGenre(genre);
+                    
                     List<Song> listSongs = artist.getSongs();
                     for (Song song : listSongs) {
                         counter += 5;
-                        if (counter > 80) {
+                        if (counter > 110) {
                             System.out.println("start sleep");
                             Thread.sleep(65001 - (new Date().getTime() - timeLastSleep.getTime()));//1min - 
                             timeLastSleep = new Date();
@@ -91,6 +93,7 @@ public class EchoNestBot {
                         }
 
                         CustomSong custSong = new CustomSong();
+                        custSong.setCustomArtist(custArtist);
                         custSong.setSongName(song.getTitle());
                         custSong.setSongDuration(song.getDuration());
                         custSong.setSongCountry(custArtist.getCountry());
@@ -101,12 +104,26 @@ public class EchoNestBot {
                         custSong.setSongHotness(hotness);
                         List<String> typeList = (List<String>) song.getObject("song_type");
                         custSong.setSongTypeList(typeList);
+                        
                         if (custSong.getSongHotness() > 0.4f) {
-                            custArtist.getCustomSongs().add(custSong);
+                            //custArtist.getCustomSongs().add(custSong);
+                            //insert to DB
+                            System.out.println("Song Title: " + custSong.getSongName()+ " - Artist: " + custSong.getCustomArtist().getName());
+                            DBInsertArtist thread = new DBInsertArtist(custSong, dbHelper);
+                            thread.start();
                         }
                     }
+                    
+                    
                     System.out.println(custArtist.toString() + custArtist.getName());
-                    artistsList.add(custArtist);
+                    //artistsList.add(custArtist);
+                    /*
+                        Here create a thread for the insertion of the artist into the database
+                    */
+                    /*DBInsertArtist thread = new DBInsertArtist(custArtist, dbHelper);
+                    thread.start();*/
+                    
+                    
                 }
 
                 if (artists == null || !artists.isEmpty()) {
@@ -114,13 +131,13 @@ public class EchoNestBot {
                 }
             }
         }
-
+        /*
         System.out.println(artistsList.size());
         for (CustomArtist artist : artistsList) {
             System.out.println(artist.toString());
             //dbHelper.writeArtistEchoNest(artist.getName(), artist.getFamiliarity(), artist.getHotttnesss(), artist.getArtistLocation().getCountry() );
         }
-
+        */
     }
 
 }
