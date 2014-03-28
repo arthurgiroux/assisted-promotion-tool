@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class CustomSong {
     private String songName;
-    private List<String> songTypeList = new ArrayList<String>();
+    private String songType;
     private Double songHotness;
     private String songCountry;
     private Double songDuration;
@@ -27,13 +27,13 @@ public class CustomSong {
     public void setSongName(String songName) {
         this.songName = songName;
     }
-
-    public List<String> getSongTypeList() {
-        return songTypeList;
+    
+    public String getSongType() {
+        return songType;
     }
 
-    public void setSongTypeList(List<String> songTypeList) {
-        this.songTypeList = songTypeList;
+    public void setSongType(String songType) {
+        this.songType = songType;
     }
 
     public Double getSongHotness() {
