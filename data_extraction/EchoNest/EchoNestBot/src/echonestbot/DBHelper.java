@@ -37,7 +37,7 @@ public class DBHelper {
     private static final String ARTISTCOUNTRY = "artistCountry";
     private static final String ARTISTSONGS = "artistSongs";
     private static final String ARTISTSONG = "artistSong";
-
+    
     private static final String SONGNAME = "songName";
     private static final String SONGHOTNESS = "songHotness";
     private static final String SONGCOUNTRY = "songCountry";
@@ -55,12 +55,10 @@ public class DBHelper {
         MongoClient mongoClient = new MongoClient(url, port);
         DB db = mongoClient.getDB(DBNAME);
         boolean auth = db.authenticate("user", "pass".toCharArray());
-
         artistsCollection = db.getCollection(ARTISTSCOLLECTION);
     }
 
     void writeArtistEchoNest(CustomArtist custArt) {
-
         BasicDBObject doc = new BasicDBObject(ARTISTNAME, custArt.getName()).
                 append(ARTISTFAMILIARITY, custArt.getFamiliarity()).
                 append(ARTISTHOTTTNESSS, custArt.getHotness()).
@@ -86,9 +84,8 @@ public class DBHelper {
         artistsCollection.insert(doc);
 
     }
-
+    
     void writeSongEchoNest(CustomSong custSong) {
-
         BasicDBObject doc = new BasicDBObject(
                 SONGNAME, custSong.getSongName()).
                 append(SONGHOTNESS, custSong.getSongHotness()).
@@ -98,9 +95,7 @@ public class DBHelper {
                 append(ARTISTFAMILIARITY, custSong.getCustomArtist().getFamiliarity()).
                 append(ARTISTHOTTTNESSS, custSong.getCustomArtist().getHotness()).
                 append(ARTISTCOUNTRY, custSong.getCustomArtist().getCountry());
-
+        
         songsCollection.insert(doc);
-
     }
-
 }
