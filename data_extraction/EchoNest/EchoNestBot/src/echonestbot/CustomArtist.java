@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package echonestbot;
 
 import java.util.HashSet;
@@ -15,9 +14,14 @@ import java.util.Set;
  * @author mikaelcastellani
  */
 public class CustomArtist {
+
     private String name;
     private Set<CustomSong> customSongs = new HashSet<CustomSong>();
     private Double hotness;
+    private String country;
+    private String city;
+    private Double familiarity;
+    private String genre;
 
     public Double getHotness() {
         return hotness;
@@ -26,10 +30,6 @@ public class CustomArtist {
     public void setHotness(Double hotness) {
         this.hotness = hotness;
     }
-    private String country;
-    private String city;
-    private Double familiarity;
-    private String genre;
 
     public String getGenre() {
         return genre;
@@ -78,8 +78,5 @@ public class CustomArtist {
     public void setFamiliarity(Double familiarity) {
         this.familiarity = familiarity;
     }
-    
-    
-            
-            
+
 }

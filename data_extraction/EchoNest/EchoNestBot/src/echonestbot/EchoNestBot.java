@@ -11,11 +11,15 @@ import com.echonest.api.v4.EchoNestAPI;
 import com.echonest.api.v4.EchoNestException;
 import com.echonest.api.v4.Song;
 import com.echonest.api.v4.SongParams;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -28,22 +32,18 @@ public class EchoNestBot {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws EchoNestException, UnknownHostException, InterruptedException {
-
+        
         //MongoDb Connection
-        //DBHelper dbHelper = new DBHelper("localhost", 27017);
-        EchoNestAPI en = new EchoNestAPI("PASSKEY");
+        DBHelper dbHelper = new DBHelper("localhost", 27017);
+        EchoNestAPI en = new EchoNestAPI("apikey");
 
         List<String> listGenres = en.listGenres();
-        System.out.println(listGenres.size() + " genres loaded");
-
-        Set<CustomArtist> artistsList = new HashSet<CustomArtist>();
 
         Date timeLastSleep = new Date();
         long counter = 1;
-//        for (int j = 0; j < 100; j++) {
-//            String genre = listGenres.get(j);
+        //for (int j = 0; j < 50; j++) {
+        //    String genre = listGenres.get(j);
         for (String genre : listGenres) {
-            System.out.println("Number of artists : " + artistsList.size() + " " + genre);
             for (int i = 0; i < 9; i++) {
                 ArtistParams p = new ArtistParams();
                 p.setResults(100);
@@ -103,21 +103,15 @@ public class EchoNestBot {
                         System.out.println("processing...");
                     }
                     System.out.println(custArtist.getName() + " with " + custArtist.getCustomSongs().size() + " songs. ");
-                    artistsList.add(custArtist);
+                    dbHelper.writeArtistEchoNest(custArtist);
                 }
 
                 if (artists == null || !artists.isEmpty()) {
+                    //If no artist is returned, go to next genre
                     break;
                 }
             }
         }
-
-        System.out.println(artistsList.size());
-        for (CustomArtist artist : artistsList) {
-            //System.out.println(artist.toString());
-            //dbHelper.writeArtistEchoNest(artist.getName(), artist.getFamiliarity(), artist.getHotttnesss(), artist.getArtistLocation().getCountry() );
-        }
-
     }
 
     public static Set<CustomSong> searchSongsByArtist(EchoNestAPI en, CustomArtist custArtist)

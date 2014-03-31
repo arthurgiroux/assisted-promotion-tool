@@ -10,8 +10,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +56,11 @@ public class DBHelper {
 // To directly connect to a single MongoDB server (note that this will not auto-discover the primary even
 // if it's a member of a replica set:
 // or
-        MongoClient mongoClient = new MongoClient(url, port);
+        //MongoClient mongoClient = new MongoClient(url, port);
+        
+        MongoCredential credential = MongoCredential.createMongoCRCredential("team15", "test", "cho4Deepo".toCharArray());
+
+        MongoClient mongoClient = new MongoClient(new ServerAddress(url), Arrays.asList(credential));
 
         db = mongoClient.getDB(DBNAME);
         tweetsCollection = db.getCollection(TWEETSCOLLECTION);
