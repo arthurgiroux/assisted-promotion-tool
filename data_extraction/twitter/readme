@@ -1,2 +1,0 @@
-1. The project is configured with maven (the dependencies are not included here but downloaded by the IDE).
-2. Right now the developer keys are hardcoded in the main file.
