@@ -85,6 +85,7 @@ public class FreeBase {
         return false;
       }
     } catch (IOException | ParseException e) {
+      System.err.println(e.getMessage());
       return false;
     }
   }
