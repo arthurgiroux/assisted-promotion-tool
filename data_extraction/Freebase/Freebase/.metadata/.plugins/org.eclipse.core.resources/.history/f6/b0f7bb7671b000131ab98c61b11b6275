@@ -1,0 +1,33 @@
+
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.jayway.jsonpath.JsonPath;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+public class FreebaseSearchExample {
+  public static String API_KEY = "590850659692";
+  public static void main(String[] args) {
+    try {
+      HttpTransport httpTransport = new NetHttpTransport();
+      HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+      JSONParser parser = new JSONParser();
+     // String query = "{\"type\":\"/music/album\",\"id\":\"/en/keep_it_turned_on\",\"artist\":null}";
+      String query="[{\"type\":\"/music/artist\",\"name\":\"Bob Dylan\"}]";
+      GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/mqlread");
+      url.put("key", FreebaseSearchExample.API_KEY);
+      url.put("query", query);
+      HttpRequest request = requestFactory.buildGetRequest(url);
+      HttpResponse httpResponse = request.execute();
+      JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());
+      JSONObject result = (JSONObject)response.get("result");
+      System.out.println(JsonPath.read(result,"$.artist").toString());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+}

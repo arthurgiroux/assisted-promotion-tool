@@ -1,0 +1,36 @@
+
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.services.freebase.Freebase.Mqlread;
+import com.google.api.services.freebase.*;
+import com.jayway.jsonpath.JsonPath;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+public class FreebaseSearchExample {
+  public static String API_KEY = "590850659692";
+  public static void main(String[] args) {
+    try {
+      HttpTransport httpTransport = new NetHttpTransport();
+      JsonFactory jsonFactory = new JacksonFactory();
+      Freebase freebase = Freebase.builder(httpTransport, jsonFactory).build();
+      JSONParser parser = new JSONParser();
+      String query = "{\"type\":\"/music/album\",\"id\":\"/en/keep_it_turned_on\",\"artist\":null}";
+      Mqlread request = freebase.mqlread(query);
+      request.setQuery(query);
+      Reader reader = new InputStreamReader(request.executeAsInputStream());
+      JSONObject response = (JSONObject)parser.parse(reader);
+      JSONObject result = (JSONObject)response.get("result");
+      System.out.println(JsonPath.read(result,"$.artist").toString());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+}

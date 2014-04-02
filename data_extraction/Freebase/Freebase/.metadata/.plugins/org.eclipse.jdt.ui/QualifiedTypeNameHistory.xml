@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.google.api.services.freebase.Freebase.Mqlread"/>
+<fullyQualifiedTypeName name="com.google.api.services.freebase.FreebaseRequest"/>
+<fullyQualifiedTypeName name="com.google.api.services.freebase.FreebaseRequestInitializer"/>
+<fullyQualifiedTypeName name="com.google.api.services.freebase.Freebase.Builder"/>
+<fullyQualifiedTypeName name="com.google.api.client.http.HttpRequestInitializer"/>
+<fullyQualifiedTypeName name="org.json.simple.JSONArray"/>
+</qualifiedTypeNameHistroy>
