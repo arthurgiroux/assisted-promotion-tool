@@ -28,11 +28,13 @@ public class DBHelper {
   private static final String ARTISTSCOLLECTION = "artistsCollection";
   private static final String ALBUMSCOLLECTION = "albumsCollection";
   private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
+  private static final String TWEETSCOLLECTION = "tweetsCollection";
 
   private DB db;
   private DBCollection albumsCollection;
   private DBCollection artistsCollection;
   private DBCollection fbpostsCollection;
+  private DBCollection tweetsCollection;
 
 
   public final static DBHelper getInstance() {
@@ -64,15 +66,16 @@ public class DBHelper {
       artistsCollection = db.getCollection(ARTISTSCOLLECTION);
       albumsCollection = db.getCollection(ALBUMSCOLLECTION);
       fbpostsCollection = db.getCollection(FBPOSTSCOLLECTION);
-
+      tweetsCollection = db.getCollection(TWEETSCOLLECTION);
+      
     } catch (UnknownHostException e) {
       System.out.println("Something went wrong while connecting to the database");
       System.exit(1);
     }
   }
 
-  public ObjectId insertArtist(String name, String country, double hotness, double familiary, String facebook_id,
-      String twitter_id) {
+  public ObjectId insertArtist(String name, String country, double hotness, double familiary, List<String> facebook_id,
+      List<String> twitter_id) {
     BasicDBObject newArtist = new BasicDBObject("name", name).
         append("country", country).
         append("hotness", hotness).
@@ -110,11 +113,23 @@ public class DBHelper {
         append("picture_attached", picture_attached);
     fbpostsCollection.insert(new_post);
   }
+  
+  public void insertTweet(ObjectId artist_id, Date date, String source, String message, int retweets,
+      List<String> hashtags) {
+    BasicDBObject new_post = new BasicDBObject("artist_id", artist_id).
+        append("date", date).
+        append("source", source).
+        append("message", message).
+        append("retweets", retweets).
+        append("hashtags", hashtags);
+    tweetsCollection.insert(new_post);
+  }
 
   public void emptyAll() {
     artistsCollection.remove(new BasicDBObject());
     albumsCollection.remove(new BasicDBObject());
     fbpostsCollection.remove(new BasicDBObject());
+    tweetsCollection.remove(new BasicDBObject());
   }
 
 

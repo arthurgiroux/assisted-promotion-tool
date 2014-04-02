@@ -35,13 +35,13 @@ public class FreeBase {
     String query = "[{" +
         "\"type\": \"/music/artist\"," +
         "\"limit\": 1," +
-        "\"name\": \"" + artist_name + "\"," +
+        "\"name\": \"" + JSONObject.escape(artist_name) + "\"," +
         "\"/internet/social_network_user/facebook_id\": []," +
         "\"/internet/social_network_user/twitter_id\": []," +
         "\"genre\": []," +
         "\"album\": [{" +
         "\"name\": null," +
-        "\"release_type\": \"Album\"," +
+        //"\"release_type\": \"Album\"," +
         "\"release_date\": null," +
         "\"genre\": []," +
         "\"primary_release\": null," +
@@ -84,7 +84,11 @@ public class FreeBase {
       else {
         return false;
       }
-    } catch (IOException | ParseException e) {
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      return false;
+    }
+    catch (ParseException e) {
       System.err.println(e.getMessage());
       return false;
     }

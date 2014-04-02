@@ -18,7 +18,7 @@ import org.bson.types.ObjectId;
 public class EchoNest {
 
   private final static float HOTNESS_THRESHOLD = 0.4f;
-  private final static int ARTISTS_LIMIT = 100;
+  private final static int ARTISTS_LIMIT = 1;
 
   public void run() {
 
@@ -26,8 +26,8 @@ public class EchoNest {
 
     EchoNestAPI echonest = new EchoNestAPI(Settings.getInstance().getProperty("echonest_api_key"));
     
-    SimpleDateFormat parseFormatComplete = new SimpleDateFormat("YYYY-MM-dd");
-    SimpleDateFormat parseFormatNoDay = new SimpleDateFormat("YYYY-MM");
+    SimpleDateFormat parseFormatComplete = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat parseFormatNoDay = new SimpleDateFormat("yyyy-MM");
     
     try {
       List<String> listGenres = echonest.listGenres();
@@ -50,7 +50,7 @@ public class EchoNest {
     
     
     
-        while (hasData && current_pos < 1000 - ARTISTS_LIMIT) {
+        while (hasData && current_pos < 2 - ARTISTS_LIMIT) {
           try {
             List<Artist> artists = echonest.searchArtists(p);
     
@@ -74,8 +74,14 @@ public class EchoNest {
     
               if (fb.run()) {
                 System.out.println("Found on freebase");
-                if (fb.getFacebook_id() != null || fb.getTwitter_id() != null) {
-                  String location = (artist.getArtistLocation() != null) ? artist.getArtistLocation().getCountry() : "";
+                if (fb.getFacebook_id().size() > 0 || fb.getTwitter_id().size() > 0) {
+                  String location = "";
+                  try {
+                    location = artist.getArtistLocation().getCountry();
+                  }
+                  catch (NullPointerException e) {
+                    location = "";
+                  }
     
                   ObjectId artist_id = dbHelper.insertArtist(artist.getName(), location, artist.getHotttnesss(), artist.getFamiliarity(),
                       fb.getFacebook_id(), fb.getTwitter_id());

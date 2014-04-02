@@ -85,7 +85,7 @@ public class FacebookPosts extends Thread {
           }
         } catch (FacebookException e) {
           // something went wrong, just discard this entry
-          System.err.println("Something went wrong with facebook API");
+          System.err.println("Something went wrong with facebook API " + e.getMessage());
         }
       }
     } finally {
