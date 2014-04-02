@@ -3,6 +3,8 @@ package common;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 import java.net.UnknownHostException;
@@ -25,10 +27,12 @@ public class DBHelper {
 
   private static final String ARTISTSCOLLECTION = "artistsCollection";
   private static final String ALBUMSCOLLECTION = "albumsCollection";
+  private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
 
   private DB db;
   private DBCollection albumsCollection;
   private DBCollection artistsCollection;
+  private DBCollection fbpostsCollection;
 
 
   public final static DBHelper getInstance() {
@@ -59,6 +63,7 @@ public class DBHelper {
 
       artistsCollection = db.getCollection(ARTISTSCOLLECTION);
       albumsCollection = db.getCollection(ALBUMSCOLLECTION);
+      fbpostsCollection = db.getCollection(FBPOSTSCOLLECTION);
 
     } catch (UnknownHostException e) {
       System.out.println("Something went wrong while connecting to the database");
@@ -79,21 +84,43 @@ public class DBHelper {
     // return the id of the insertion
     return (ObjectId) newArtist.get("_id");
   }
+  
+  public void updateArtistLikes(DBObject artist, int likes, int talking_about) {
+    artist.put("facebook_likes", likes);
+    artist.put("facebook_talking_about", talking_about);
+    artistsCollection.save(artist);
+  }
 
-  public ObjectId insertAlbum(ObjectId artist_id, String name, Date release_date, List<String> genre) {
+  public void insertAlbum(ObjectId artist_id, String name, Date release_date, List<String> genre) {
     BasicDBObject newAlbum = new BasicDBObject("name", name).
         append("artist_id", artist_id).
         append("release_date", release_date).
         append("genre", genre);
     albumsCollection.insert(newAlbum);
 
-    // return the id of the insertion
-    return (ObjectId) newAlbum.get("_id");	
+  }
+  
+  public void insertFbPosts(ObjectId artist_id, Date date, String message, int likes, int shares,
+      boolean picture_attached) {
+    BasicDBObject new_post = new BasicDBObject("artist_id", artist_id).
+        append("date", date).
+        append("message", message).
+        append("likes", likes).
+        append("shares", shares).
+        append("picture_attached", picture_attached);
+    fbpostsCollection.insert(new_post);
   }
 
   public void emptyAll() {
     artistsCollection.remove(new BasicDBObject());
     albumsCollection.remove(new BasicDBObject());
+    fbpostsCollection.remove(new BasicDBObject());
   }
+
+
+  public DBCursor findAllArtists() {
+    return artistsCollection.find();
+  }
+  
 
 }

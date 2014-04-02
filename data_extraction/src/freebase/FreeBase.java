@@ -20,8 +20,8 @@ import org.json.simple.parser.ParseException;
 
 public class FreeBase {
 
-  private String facebook_id;
-  private String twitter_id;
+  private List<String> facebook_id;
+  private List<String> twitter_id;
   private String artist_name;
   private List<Album> albums;
 
@@ -36,8 +36,8 @@ public class FreeBase {
         "\"type\": \"/music/artist\"," +
         "\"limit\": 1," +
         "\"name\": \"" + artist_name + "\"," +
-        "\"/internet/social_network_user/facebook_id\": null," +
-        "\"/internet/social_network_user/twitter_id\": null," +
+        "\"/internet/social_network_user/facebook_id\": []," +
+        "\"/internet/social_network_user/twitter_id\": []," +
         "\"genre\": []," +
         "\"album\": [{" +
         "\"name\": null," +
@@ -70,8 +70,8 @@ public class FreeBase {
       if (results.size() > 0) {
         JSONObject result = (JSONObject) results.get(0);
 
-        twitter_id = (String) result.get("/internet/social_network_user/twitter_id");
-        facebook_id = (String) result.get("/internet/social_network_user/facebook_id");
+        twitter_id = (JSONArray) result.get("/internet/social_network_user/twitter_id");
+        facebook_id = (JSONArray) result.get("/internet/social_network_user/facebook_id");
 
         JSONArray albumsArray = (JSONArray) result.get("album");
         for (Object item : albumsArray) {
@@ -91,12 +91,12 @@ public class FreeBase {
   }
 
 
-  public String getFacebook_id() {
+  public List<String> getFacebook_id() {
     return facebook_id;
   }
 
 
-  public String getTwitter_id() {
+  public List<String> getTwitter_id() {
     return twitter_id;
   }
 

@@ -1,8 +1,8 @@
 package main;
 
 import common.DBHelper;
-
 import echonest.EchoNest;
+import facebook.FacebookPosts;
 
 public class DataExtraction {
 
@@ -14,7 +14,11 @@ public class DataExtraction {
     }
     // EchoNest + Freebase phase:
     EchoNest echonest = new EchoNest();
-
     echonest.run();
+    
+    
+    // Facebook and Twitter are thread because we can execute them in parallel
+    FacebookPosts fb = new FacebookPosts();
+    fb.start();
   }
 }
