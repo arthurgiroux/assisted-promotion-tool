@@ -142,7 +142,7 @@ public class DBHelper {
     CommandResult r = db.getStats();
     if (r.containsField("dataSize")) {
       try {
-        return (int) (r.get("dataSize"));
+        return (Integer) (r.get("dataSize"));
       } catch (ClassCastException e) {}
     }
     return -1; // If anything goes wrong
