@@ -42,7 +42,7 @@ public class TwitterPosts extends Thread {
             String str_id = (String) id;
 
             for (int i = 1; i < 34; i++) {
-              Paging paging = new Paging(i, 100);// 2 is ‘page 2 of the results’, 100 is the number of results in the page
+              Paging paging = new Paging(i, 100);// 2 is "page 2 of the results", 100 is the number of results in the page
               
               List<Status> statuses = new ArrayList<Status>();
               try {
