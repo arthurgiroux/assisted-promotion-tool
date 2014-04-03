@@ -137,5 +137,21 @@ public class DBHelper {
     return artistsCollection.find();
   }
   
+  
+  public long countArtists() {
+    return artistsCollection.count();
+  }
+  
+  public long countAlbums() {
+    return albumsCollection.count();
+  }
+
+  public long countFacebookPosts() {
+    return fbpostsCollection.count();
+  }
+  
+  public long countTweets() {
+    return tweetsCollection.count();
+  }
 
 }
