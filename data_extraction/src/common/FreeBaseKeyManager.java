@@ -23,14 +23,17 @@ public class FreeBaseKeyManager {
   }
   
   public String getKey() {
+    System.out.println("API key " + keys[index]);
     return keys[index];
   }
   
   public void useNext() {
+    System.out.println("Switching freebase API key");
     index++;
     if (index >= keys.length) {
       try {
-        Thread.sleep(24*3600);
+        System.out.println("No more freebase keys, sleeping for 24h");
+        Thread.sleep(24*3600000);
       } catch (InterruptedException e) {
         System.err.println("FreeBase didn't wait :(");
       }
