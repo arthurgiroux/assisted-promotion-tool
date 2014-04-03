@@ -1,6 +1,7 @@
 package common;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -131,7 +132,20 @@ public class DBHelper {
     fbpostsCollection.remove(new BasicDBObject());
     tweetsCollection.remove(new BasicDBObject());
   }
-
+  
+  public void emptyFacebookCollection() {
+    fbpostsCollection.remove(new BasicDBObject());
+  }
+  
+  public int getDataSize() {
+    CommandResult r = db.getStats();
+    if (r.containsField("dataSize")) {
+      try {
+        return (int) r.get("dataSize");
+      } catch (ClassCastException e) {}
+    }
+    return -1; // If anything goes wrong
+  }
 
   public DBCursor findAllArtists() {
     return artistsCollection.find();
