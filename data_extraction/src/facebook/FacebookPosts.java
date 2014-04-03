@@ -50,8 +50,10 @@ public class FacebookPosts extends Thread {
 
               Page result = facebook.getPage(str_id);
               
-              // if page not found, continue with next one
-              if (result == null) {
+              /* if page not found (or other shitty facebook API behaviour like
+               * considering a person as a page), continue with next one
+               */
+              if (result == null || result.getLikes() == null || result.getTalkingAboutCount() == null) {
                 continue;
               }
               
