@@ -137,16 +137,6 @@ public class DBHelper {
     fbpostsCollection.remove(new BasicDBObject());
     tweetsCollection.remove(new BasicDBObject());
   }
-  
-  public int getDataSize() {
-    CommandResult r = db.getStats();
-    if (r.containsField("dataSize")) {
-      try {
-        return (Integer) (r.get("dataSize"));
-      } catch (ClassCastException e) {}
-    }
-    return -1; // If anything goes wrong
-  }
 
   public DBCursor findAllArtists() {
     return artistsCollection.find();

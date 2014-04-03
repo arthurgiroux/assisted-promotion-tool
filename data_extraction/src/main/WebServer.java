@@ -25,8 +25,7 @@ public class WebServer {
             String response = "# Artists: " + db.countArtists() + "\n" +
                 "# Albums: " + db.countAlbums() + "\n" +
                 "# Facebook Posts: " + db.countFacebookPosts() + "\n" +
-                "# Tweets: " + db.countTweets() + "\n" + 
-                "Data size: " + db.getDataSize() + "\n";
+                "# Tweets: " + db.countTweets() + "\n";
             
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();
