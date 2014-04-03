@@ -11,6 +11,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 
 import common.Album;
+import common.FreeBaseKeyManager;
 import common.Settings;
 
 import org.json.simple.JSONArray;
@@ -58,12 +59,12 @@ public class FreeBase {
 
       JSONParser parser = new JSONParser();
       GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/mqlread");
-      url.put("key", Settings.getInstance().getProperty("freebase_api_key"));
+      url.put("key", FreeBaseKeyManager.getInstance().getKey());
       url.put("query", getQuery());
 
       HttpRequest request = requestFactory.buildGetRequest(url);
       HttpResponse httpResponse = request.execute();
-
+      
       JSONObject response = (JSONObject) parser.parse(httpResponse.parseAsString());
       JSONArray results = (JSONArray) response.get("result");
 
@@ -85,6 +86,10 @@ public class FreeBase {
         return false;
       }
     } catch (IOException e) {
+      if (e.getMessage().contains("dailyLimitExceeded")) {
+        FreeBaseKeyManager.getInstance().useNext();
+        return this.run();
+      }
       System.err.println(e.getMessage());
       return false;
     }

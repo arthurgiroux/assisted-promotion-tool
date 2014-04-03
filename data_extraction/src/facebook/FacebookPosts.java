@@ -49,7 +49,12 @@ public class FacebookPosts extends Thread {
               String str_id = (String) id;
 
               Page result = facebook.getPage(str_id);
-
+              
+              // if page not found, continue with next one
+              if (result == null) {
+                continue;
+              }
+              
               db.updateArtistLikes(item, result.getLikes(), result.getTalkingAboutCount());
 
               int offset = 0;
