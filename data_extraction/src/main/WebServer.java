@@ -23,7 +23,7 @@ public class WebServer {
             DBHelper db = DBHelper.getInstance();
             
             String response = "# Artists: " + db.countArtists() + "\n" +
-                "# Albums: " + db.countArtists() + "\n" +
+                "# Albums: " + db.countAlbums() + "\n" +
                 "# Facebook Posts: " + db.countFacebookPosts() + "\n" +
                 "# Tweets: " + db.countTweets() + "\n";
             
