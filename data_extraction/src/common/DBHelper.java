@@ -133,8 +133,9 @@ public class DBHelper {
     tweetsCollection.remove(new BasicDBObject());
   }
   
-  public void emptyFacebookCollection() {
+  public void emptyFacebookAndTwitterCollections() {
     fbpostsCollection.remove(new BasicDBObject());
+    tweetsCollection.remove(new BasicDBObject());
   }
   
   public int getDataSize() {

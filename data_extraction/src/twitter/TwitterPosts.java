@@ -6,6 +6,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBList;
+import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -26,7 +27,7 @@ public class TwitterPosts extends Thread {
 
     DBHelper db = DBHelper.getInstance();
 
-    DBCursor cursor = db.findAllArtists();
+    DBCursor cursor = db.findAllArtists().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
     try {
 
