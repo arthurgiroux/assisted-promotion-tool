@@ -22,6 +22,25 @@ public class TwitterPosts extends Thread {
 
   public void run() {
     Twitter twitter = TwitterFactory.getSingleton();
+      twitter.addRateLimitStatusListener(new RateLimitStatusListener() {
+          
+          @Override
+          public void onRateLimitStatus(RateLimitStatusEvent rlse) {
+              
+          }
+          
+          @Override
+          public void onRateLimitReached(RateLimitStatusEvent rlse) {
+              try {
+                  //Sleeping
+                  System.out.println("Twitter sleeping...");
+                  sleep(60001); //1min
+              } catch (InterruptedException ex) {
+                  Logger.getLogger(TwitterUpdateBot.class.getName()).log(Level.SEVERE, null, ex);
+              }
+          }
+      });
+
 
     System.out.println("starting twitter");
 
@@ -51,21 +70,7 @@ public class TwitterPosts extends Thread {
                 System.out.println("Page " + i + " for " + item.get("name"));
                 
               } catch (TwitterException e) {
-                System.out.println("Rate limit");
-                try {
-                  sleep(900001); //15min
-                } catch (InterruptedException e2) {
-                  System.err.println("Something went wrong while sleeping on twitter");
-                  e2.printStackTrace();
-                  
-                }
-                
-                try {
-                  statuses = twitter.getUserTimeline(str_id, paging);
-                } catch (TwitterException e1) {
-                  e1.printStackTrace();
-                }
-                System.out.println("Page " + i + " for " + item.get("name"));
+                System.out.println(e.getMessage());
               }
               
               if (statuses.isEmpty()) {
@@ -80,6 +85,9 @@ public class TwitterPosts extends Thread {
                 for (int j = 0; j < curHash.length; ++j) {
                   hashtags.add(curHash[j].getText());
                 }
+                  if (item.get("twitter_followers") == null) {
+                  db.updateArtistFollowers(item, status.getUser().getFollowersCount());
+                  }
 
                 db.insertTweet((ObjectId) item.get("_id"), status.getCreatedAt(), status.getUser().getScreenName(), status.getText(), status.getRetweetCount(), hashtags);
               }
