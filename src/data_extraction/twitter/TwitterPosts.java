@@ -2,8 +2,21 @@ package data_extraction.twitter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bson.types.ObjectId;
+
+import twitter4j.HashtagEntity;
+import twitter4j.Logger;
+import twitter4j.Paging;
+import twitter4j.RateLimitStatusEvent;
+import twitter4j.RateLimitStatusListener;
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuth2Token;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.Bytes;
@@ -11,35 +24,31 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import common.DBHelper;
-import twitter4j.HashtagEntity;
-import twitter4j.Paging;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
+import data_extraction.twitterupdatebot.TwitterUpdateBot;
 
 public class TwitterPosts extends Thread {
 
   public void run() {
     Twitter twitter = TwitterFactory.getSingleton();
-      twitter.addRateLimitStatusListener(new RateLimitStatusListener() {
+    twitter.addRateLimitStatusListener(new RateLimitStatusListener() {
+
+      @Override
+      public void onRateLimitStatus(RateLimitStatusEvent rlse) {
+        
+      }
+
+      @Override
+      public void onRateLimitReached(RateLimitStatusEvent rlse) {
+        try {
+          //Sleeping
+          System.out.println("Switching keys");
+          twitter.setOAuthAccessToken(new AccessToken(token, tokenSecret, userId));
           
-          @Override
-          public void onRateLimitStatus(RateLimitStatusEvent rlse) {
-              
-          }
-          
-          @Override
-          public void onRateLimitReached(RateLimitStatusEvent rlse) {
-              try {
-                  //Sleeping
-                  System.out.println("Twitter sleeping...");
-                  sleep(60001); //1min
-              } catch (InterruptedException ex) {
-                  Logger.getLogger(TwitterUpdateBot.class.getName()).log(Level.SEVERE, null, ex);
-              }
-          }
-      });
+          sleep(60001);
+        } catch (InterruptedException ex) {
+        }
+      }
+    });
 
 
     System.out.println("starting twitter");
@@ -63,16 +72,16 @@ public class TwitterPosts extends Thread {
 
             for (int i = 1; i < 34; i++) {
               Paging paging = new Paging(i, 100);// 2 is "page 2 of the results", 100 is the number of results in the page
-              
+
               List<Status> statuses = new ArrayList<Status>();
               try {
                 statuses = twitter.getUserTimeline(str_id, paging);
                 System.out.println("Page " + i + " for " + item.get("name"));
-                
+
               } catch (TwitterException e) {
                 System.out.println(e.getMessage());
               }
-              
+
               if (statuses.isEmpty()) {
                 System.out.println("Finished parsing for " + item.get("name"));
                 break;
@@ -85,9 +94,9 @@ public class TwitterPosts extends Thread {
                 for (int j = 0; j < curHash.length; ++j) {
                   hashtags.add(curHash[j].getText());
                 }
-                  if (item.get("twitter_followers") == null) {
+                if (item.get("twitter_followers") == null) {
                   db.updateArtistFollowers(item, status.getUser().getFollowersCount());
-                  }
+                }
 
                 db.insertTweet((ObjectId) item.get("_id"), status.getCreatedAt(), status.getUser().getScreenName(), status.getText(), status.getRetweetCount(), hashtags);
               }
