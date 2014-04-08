@@ -23,7 +23,7 @@ public class Settings {
     try {
       properties.load(new FileInputStream("credentials.properties"));
     } catch (IOException e) {
-
+      e.printStackTrace();
     }
   }
 

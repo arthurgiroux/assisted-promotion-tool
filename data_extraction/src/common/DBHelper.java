@@ -1,5 +1,6 @@
 package common;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
@@ -30,12 +31,14 @@ public class DBHelper {
   private static final String ALBUMSCOLLECTION = "albumsCollection";
   private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
   private static final String TWEETSCOLLECTION = "tweetsCollection";
+  private static final String MATRIXCOLLECTION = "matrixCollection";
 
   private DB db;
   private DBCollection albumsCollection;
   private DBCollection artistsCollection;
   private DBCollection fbpostsCollection;
   private DBCollection tweetsCollection;
+  private DBCollection matrixCollection;
 
 
   public final static DBHelper getInstance() {
@@ -68,6 +71,7 @@ public class DBHelper {
       albumsCollection = db.getCollection(ALBUMSCOLLECTION);
       fbpostsCollection = db.getCollection(FBPOSTSCOLLECTION);
       tweetsCollection = db.getCollection(TWEETSCOLLECTION);
+      matrixCollection = db.getCollection(MATRIXCOLLECTION);
       
     } catch (UnknownHostException e) {
       System.out.println("Something went wrong while connecting to the database");
@@ -87,6 +91,32 @@ public class DBHelper {
 
     // return the id of the insertion
     return (ObjectId) newArtist.get("_id");
+  }
+  
+  public void insertMatrixRow(
+      ObjectId albumId,
+      String albumName,
+      Date albumReleaseDate,
+      BasicDBList albumGenres,
+      ObjectId artistId,
+      String artistName,
+      String artistCountry,
+      double artistHotness,
+      int artistFBLikes,
+      int twitterFollowers,
+      int albumCount) {
+    BasicDBObject newRow = new BasicDBObject("albumId", albumId).
+        append("albumName", albumName).
+        append("albumReleaseDate", albumReleaseDate).
+        append("albumGenres", albumGenres).
+        append("artistId", artistId).
+        append("artistName", artistName).
+        append("artistCountry", artistCountry).
+        append("artistHotness", artistHotness).
+        append("artistFBLikes", artistFBLikes).
+        append("twitterFollowers", artistFBLikes).
+        append("albumCount", artistFBLikes);
+    matrixCollection.insert(newRow);
   }
   
   public void updateArtistLikes(DBObject artist, int likes, int talking_about) {
@@ -137,11 +167,24 @@ public class DBHelper {
     fbpostsCollection.remove(new BasicDBObject());
     tweetsCollection.remove(new BasicDBObject());
   }
+  
+  public void dropMatrixCollection() {
+    matrixCollection.drop();
+  }
 
   public DBCursor findAllArtists() {
     return artistsCollection.find();
   }
   
+  public DBObject findArtist(ObjectId id) {
+    BasicDBObject query = new BasicDBObject("_id", id);
+
+    return artistsCollection.findOne(query);
+  }
+  
+  public DBCursor findAllAlbums() {
+    return albumsCollection.find();
+  }
   
   public long countArtists() {
     return artistsCollection.count();
