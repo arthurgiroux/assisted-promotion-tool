@@ -1,4 +1,4 @@
-package facebook;
+package data_extraction.facebook;
 
 import org.bson.types.ObjectId;
 

@@ -1,4 +1,4 @@
-package freebase;
+package data_extraction.freebase;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

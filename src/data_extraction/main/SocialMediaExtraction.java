@@ -1,8 +1,8 @@
-package main;
+package data_extraction.main;
 
-import twitter.TwitterPosts;
 import common.DBHelper;
-import facebook.FacebookPosts;
+import data_extraction.facebook.FacebookPosts;
+import data_extraction.twitter.TwitterPosts;
 
 public class SocialMediaExtraction {
 

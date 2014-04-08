@@ -1,4 +1,4 @@
-package echonest;
+package data_extraction.echonest;
 
 import com.echonest.api.v4.Artist;
 import com.echonest.api.v4.ArtistParams;
@@ -8,7 +8,7 @@ import com.echonest.api.v4.EchoNestException;
 import common.Album;
 import common.DBHelper;
 import common.Settings;
-import freebase.FreeBase;
+import data_extraction.freebase.FreeBase;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

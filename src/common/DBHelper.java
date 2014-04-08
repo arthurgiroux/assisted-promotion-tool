@@ -78,6 +78,11 @@ public class DBHelper {
       System.exit(1);
     }
   }
+  
+  public void updateArtistFollowers(DBObject artist, int followers){
+    artist.put("twitter_followers", followers);
+    artistsCollection.save(artist);
+  }
 
   public ObjectId insertArtist(String name, String country, double hotness, double familiary, List<String> facebook_id,
       List<String> twitter_id) {

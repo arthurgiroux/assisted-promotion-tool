@@ -1,4 +1,4 @@
-package twitter;
+package data_extraction.twitter;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,9 @@
-package main;
+package data_extraction.main;
 
-import twitter.TwitterPosts;
 import common.DBHelper;
-import echonest.EchoNest;
-import facebook.FacebookPosts;
+import data_extraction.echonest.EchoNest;
+import data_extraction.facebook.FacebookPosts;
+import data_extraction.twitter.TwitterPosts;
 
 public class DataExtraction {
 

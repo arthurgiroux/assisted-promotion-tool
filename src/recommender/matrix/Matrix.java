@@ -1,4 +1,4 @@
-package matrix;
+package recommender.matrix;
 
 import java.util.Date;
 

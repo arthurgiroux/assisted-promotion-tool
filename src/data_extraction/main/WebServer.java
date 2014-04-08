@@ -1,4 +1,4 @@
-package main;
+package data_extraction.main;
 
 import java.io.IOException;
 import java.io.OutputStream;
