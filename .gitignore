@@ -2,3 +2,9 @@
 /TwitterUpdateBot/build/
 /TwitterUpdateBot/dist/
 /bin
+*.class
+*.DS_Store
+*.classpath
+*.project
+.settings/
+*.properties
