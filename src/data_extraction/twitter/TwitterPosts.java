@@ -2,12 +2,10 @@ package data_extraction.twitter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.bson.types.ObjectId;
 
 import twitter4j.HashtagEntity;
-import twitter4j.Logger;
 import twitter4j.Paging;
 import twitter4j.RateLimitStatusEvent;
 import twitter4j.RateLimitStatusListener;
@@ -16,7 +14,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
-import twitter4j.auth.OAuth2Token;
+import twitter4j.conf.ConfigurationBuilder;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.Bytes;
@@ -24,33 +22,14 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import common.DBHelper;
-import data_extraction.twitterupdatebot.TwitterUpdateBot;
+import common.TwitterKeyManager;
 
 public class TwitterPosts extends Thread {
-
+  
   public void run() {
-    Twitter twitter = TwitterFactory.getSingleton();
-    twitter.addRateLimitStatusListener(new RateLimitStatusListener() {
-
-      @Override
-      public void onRateLimitStatus(RateLimitStatusEvent rlse) {
-        
-      }
-
-      @Override
-      public void onRateLimitReached(RateLimitStatusEvent rlse) {
-        try {
-          //Sleeping
-          System.out.println("Switching keys");
-          twitter.setOAuthAccessToken(new AccessToken(token, tokenSecret, userId));
-          
-          sleep(60001);
-        } catch (InterruptedException ex) {
-        }
-      }
-    });
-
-
+    
+    Twitter twitter = null;
+    
     System.out.println("starting twitter");
 
     DBHelper db = DBHelper.getInstance();
@@ -74,12 +53,25 @@ public class TwitterPosts extends Thread {
               Paging paging = new Paging(i, 100);// 2 is "page 2 of the results", 100 is the number of results in the page
 
               List<Status> statuses = new ArrayList<Status>();
-              try {
-                statuses = twitter.getUserTimeline(str_id, paging);
-                System.out.println("Page " + i + " for " + item.get("name"));
-
-              } catch (TwitterException e) {
-                System.out.println(e.getMessage());
+              
+              boolean twitterSucceeded = false;
+              
+              while (!twitterSucceeded) {
+                twitter = TwitterKeyManager.getInstance().getTwitterInstance();
+                
+                try {
+                  statuses = twitter.getUserTimeline(str_id, paging);
+                  System.out.println("Page " + i + " for " + item.get("name"));
+                  twitterSucceeded = true;
+                } catch (TwitterException e) {
+                  System.out.println(e.getMessage());
+                  TwitterKeyManager.getInstance().useNext();
+                  try {
+                    sleep(60 * 1000);
+                  } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                  }
+                }
               }
 
               if (statuses.isEmpty()) {
