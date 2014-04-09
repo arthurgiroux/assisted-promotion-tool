@@ -45,7 +45,7 @@ public class TwitterPosts extends Thread {
         System.out.println("Twitter: treating " + item.get("name"));
         BasicDBList twitter_id = (BasicDBList) item.get("twitter_id");
 
-        if (twitter_id != null) {
+        if (twitter_id != null && !db.hasTweetsParsed((ObjectId)item.get("_id"))) {
           for (Object id : twitter_id) {
             String str_id = (String) id;
 
