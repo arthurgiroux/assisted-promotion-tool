@@ -27,13 +27,9 @@ public class DBHelper {
   private static final String DBNAME = "team15";
 
   private static final String ARTISTSCOLLECTION = "artistsCollection";
-  private static final String CLEANARTISTSCOLLECTION = "cleanArtistsCollection";
   private static final String ALBUMSCOLLECTION = "albumsCollection";
-  private static final String CLEANALBUMSCOLLECTION = "cleanAlbumsCollection";
   private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
   private static final String TWEETSCOLLECTION = "tweetsCollection";
-  private static final String CLEANFBPOSTSCOLLECTION = "cleanFbpostsCollection";
-  private static final String CLEANTWEETSCOLLECTION = "cleanTweetsCollection";
 
   private static final String MATRIXCOLLECTION = "matrixCollection";
 
@@ -42,10 +38,6 @@ public class DBHelper {
   private DBCollection artistsCollection;
   private DBCollection fbpostsCollection;
   private DBCollection tweetsCollection;
-  private DBCollection cleanAlbumsCollection;
-  private DBCollection cleanArtistsCollection;
-  private DBCollection cleanFbpostsCollection;
-  private DBCollection cleanTweetsCollection;
 
   private DBCollection matrixCollection;
 
@@ -77,8 +69,6 @@ public class DBHelper {
 
       artistsCollection = db.getCollection(ARTISTSCOLLECTION);
       albumsCollection = db.getCollection(ALBUMSCOLLECTION);
-      cleanArtistsCollection = db.getCollection(CLEANARTISTSCOLLECTION);
-      cleanAlbumsCollection = db.getCollection(CLEANALBUMSCOLLECTION);
       fbpostsCollection = db.getCollection(FBPOSTSCOLLECTION);
       tweetsCollection = db.getCollection(TWEETSCOLLECTION);
 
@@ -133,12 +123,12 @@ public class DBHelper {
   public void updateArtistLikes(DBObject artist, int likes, int talking_about) {
     artist.put("facebook_likes", likes);
     artist.put("facebook_talking_about", talking_about);
-    cleanArtistsCollection.save(artist);
+    artistsCollection.save(artist);
   }
 
   public void updateArtistFollowers(DBObject artist, int followers){
     artist.put("twitter_followers", followers);
-    cleanArtistsCollection.save(artist);
+    artistsCollection.save(artist);
   }
 
   public void insertAlbum(ObjectId artist_id, String name, Date release_date, List<String> genre) {
@@ -194,7 +184,7 @@ public class DBHelper {
   }
 
   public DBCursor findAllArtists() {
-    return cleanArtistsCollection.find();
+    return artistsCollection.find();
   }
 
   public DBCursor findAllAlbums(){
@@ -202,11 +192,11 @@ public class DBHelper {
   }
 
   public long countArtists() {
-    return cleanArtistsCollection.count();
+    return artistsCollection.count();
   }
 
   public long countAlbums() {
-    return cleanAlbumsCollection.count();
+    return albumsCollection.count();
   }
 
   public long countFacebookPosts() {
@@ -225,10 +215,10 @@ public class DBHelper {
 
   public boolean artistExists(ObjectId artist_id) {
     BasicDBObject post = new BasicDBObject("_id", artist_id);
-    DBObject obj = cleanArtistsCollection.findOne(post);
+    DBObject obj = artistsCollection.findOne(post);
     return obj!=null;
   }
-
+/*
   public void insertCleanAlbum(DBObject album){
     cleanAlbumsCollection.insert(album);
   }
@@ -240,5 +230,5 @@ public class DBHelper {
   public void insertCleanFbpost(DBObject fbpost){
     cleanFbpostsCollection.insert(fbpost);
   }
-
+*/
 }
