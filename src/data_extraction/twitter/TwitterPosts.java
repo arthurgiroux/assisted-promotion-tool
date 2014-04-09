@@ -64,12 +64,15 @@ public class TwitterPosts extends Thread {
                   System.out.println("Page " + i + " for " + item.get("name"));
                   twitterSucceeded = true;
                 } catch (TwitterException e) {
-                  System.out.println(e.getMessage());
-                  TwitterKeyManager.getInstance().useNext();
-                  try {
-                    sleep(60 * 1000);
-                  } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                  if (e.getMessage().contains("Rate limit")) {
+                    TwitterKeyManager.getInstance().useNext();
+                    try {
+                      sleep(60 * 1000);
+                    } catch (InterruptedException e1) {
+                      e1.printStackTrace();
+                    }
+                  } else {
+                    break;
                   }
                 }
               }
