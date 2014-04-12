@@ -130,6 +130,11 @@ public class DBHelper {
     artist.put("twitter_followers", followers);
     artistsCollection.save(artist);
   }
+  
+  public void updateArtistAlbumCount(DBObject artist, int albumCount){
+    artist.put("album_count", albumCount);
+    artistsCollection.save(artist);
+  }
 
   public void insertAlbum(ObjectId artist_id, String name, Date release_date, List<String> genre) {
     BasicDBObject newAlbum = new BasicDBObject("name", name).
