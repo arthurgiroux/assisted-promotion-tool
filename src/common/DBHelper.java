@@ -28,7 +28,7 @@ public class DBHelper {
     private static final String ARTISTSCOLLECTION = "artistsCollection";
     private static final String ALBUMSCOLLECTION = "albumsCollection";
     private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
-    private static final String TWEETSCOLLECTION = "tweetsCollection";
+    private static final String TWEETSCOLLECTION = "tweetsNLPBackup";
 
     private static final String MATRIXCOLLECTION = "matrixCollection";
 
@@ -233,6 +233,20 @@ public class DBHelper {
         DBObject obj = artistsCollection.findOne(post);
         return obj != null;
     }
+    
+    public DBCursor findFBPostsByArtistId(BasicDBObject query) {
+      return fbpostsCollection.find(query);
+    }
+    
+    public DBCursor findTweetsByArtistId(BasicDBObject query) {
+      return tweetsCollection.find(query);
+    }
+    
+    public DBCursor findPreviousAlbum(ObjectId artist_id, Date date, Date date_limit) {
+      return albumsCollection.find(new BasicDBObject("artist_id", artist_id).append("release_date", new BasicDBObject("$lt", date)
+      .append("$gte", date_limit))).sort(new BasicDBObject("release_date", -1)).limit(1);
+    }
+    
     /*
      public void insertCleanAlbum(DBObject album){
      cleanAlbumsCollection.insert(album);
