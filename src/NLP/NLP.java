@@ -246,7 +246,7 @@ public class NLP {
         // I.e : Coldplay's, release's
         if (containsStem(word.value(), STEMS) || containsStem(word.value(), new String [] { last_token_artist_name,  last_token_album_name } )) {
           // We then retrieve the next noun in the sentence
-          for (int j = i+1; i < tSentence.size(); ++j) {
+          for (int j = i+1; j < tSentence.size(); ++j) {
             TaggedWord nextWord = tSentence.get(j);
             // If it's a noun
             if (nextWord.tag().equals("NN")) {
@@ -264,7 +264,7 @@ public class NLP {
         // We only care if it's my or our
         if ((word.value().toLowerCase().equals("my") || word.value().toLowerCase().equals("our"))) {
           // We retrieve the next noun
-          for (int j = i; i < tSentence.size(); ++j) {
+          for (int j = i+1; j < tSentence.size(); ++j) {
             TaggedWord nextWord = tSentence.get(j);
             if (nextWord.tag().equals("NN")) {
               // Check if the noun contains a stem or first word of the album name
