@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import static common.DBHelper.*;
+import java.util.Date;
 
 /**
  *
@@ -33,6 +34,8 @@ public class Recommender {
 
     public static void main(String[] args) {
         try {
+            Date start = new Date();
+            
             if(FBLikesWeight+TwitterFollowersWeight+NumberOfAlbumsWeight+RegionWeight+CategoryWeight>1){
                 System.out.println("Check the weights");
                 System.exit(0);
@@ -58,7 +61,10 @@ public class Recommender {
                 }
 
             }
-            System.out.println(counter);
+            
+            System.out.println(counter + " matches found.");
+            
+            System.out.println("Time elapsed : " + (new Date().getTime() - start.getTime())/1000.0 + " seconds");
             
 
         } catch (Exception e) {
