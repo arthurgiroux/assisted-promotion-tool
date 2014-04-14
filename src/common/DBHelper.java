@@ -172,6 +172,10 @@ public class DBHelper {
                 append("hashtags", hashtags);
         tweetsCollection.insert(new_post);
     }
+    
+    public void updateMatrixRow(DBObject row) {
+      matrixCollection.save(row);
+  }
 
     public void emptyAll() {
         artistsCollection.remove(new BasicDBObject());

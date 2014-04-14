@@ -4,8 +4,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.bson.types.ObjectId;
 
@@ -14,11 +14,8 @@ import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.tokensregex.TokenSequencePattern;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import common.DBHelper;
 import common.Event;
@@ -38,15 +35,20 @@ public class NLP {
   
   private String album_name;
   
+  private DBObject matrix_row;
+  
+  private final static long MILLISECS_PER_DAY = 24 * 60 * 60 * 1000;
+  
   private final static String[] STEMS = {"launch", "conference", "publish", "avail", "store", "releas", "album", "singl", "new", "interview" , "press", "campaign", "cover", "video", "clip", "hit", "countdown", "first", "show", "announc", "CD" };
   
-  public NLP(ObjectId artist_id, ObjectId album_id, Date release_date, String artist_name, String album_name, MaxentTagger tagger) {
-    this.artist_id = artist_id;
-    this.album_id = album_id;
-    this.release_date = release_date;
+  public NLP(DBObject matrix_row, MaxentTagger tagger) {
+    this.matrix_row = matrix_row;
+    this.artist_id = (ObjectId) matrix_row.get("artistId");
+    this.album_id = (ObjectId) matrix_row.get("albumId");
+    this.release_date = (Date) matrix_row.get("albumReleaseDate");
     this.tagger = tagger;
-    this.artist_name = artist_name;
-    this.album_name = album_name;
+    this.artist_name = (String) matrix_row.get("artistName");
+    this.album_name =  (String) matrix_row.get("albumName");
   }
   
   public void run() {
@@ -80,33 +82,24 @@ public class NLP {
       date = c.getTime();
     }
     
+    HashMap<TYPE, Event> eventsFound = new HashMap<TYPE, Event>();
+    
     System.out.println(artist_id + " " + album_id);
     
     BasicDBObject query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     DBCursor cursor = dbHelper.findTweetsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
-    
-    ArrayList<Event> events = new ArrayList<Event>();
-    
+        
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       String message = (String) item.get("message");
-      ArrayList<String> stems_found = new ArrayList<String>();
+      int stemsFound = 0;
       for (String stem : STEMS) {
         if (message.contains(stem)) {
-          stems_found.add(stem);
+          stemsFound++;
         }
       }
       
-      if (stems_found.size() > 0) {
-        for (String found : stems_found) {
-//          System.out.print(found + " ");
-        }
-        
-        // Coldplay is releasing a new album, check their work on ...
-//        System.out.println(item.get("date"));
-//        System.out.println(item.get("message"));
-//        System.out.println(item.get("hashtags"));
-//        System.out.println();
+      if (stemsFound > 0) {
         
         // We discard retweets and replies
         if (message.startsWith("RT") || message.startsWith("@")) {
@@ -115,13 +108,12 @@ public class NLP {
         
         
         List<List<HasWord>> sentences = MaxentTagger.tokenizeText(new StringReader(message));
-        ArrayList<ArrayList<TaggedWord>> toKeep = new ArrayList<ArrayList<TaggedWord>>();
+        
         for (List<HasWord> sentence : sentences) {
           ArrayList<TaggedWord> tSentence = tagger.tagSentence(sentence);
           ArrayList<String> words = new ArrayList<String>();
           String words_str = "";
           
-          // TODO : maybe we can use toString on sentence
           for (TaggedWord word : tSentence) {
             words_str += word.value() + " ";
             words.add(word.value());
@@ -129,7 +121,6 @@ public class NLP {
          
           // We check for possessive rules
           if (keepMessage(tSentence)) {
-
             TYPE type = null;
             if (oneContains(words, new String[] { "singl" }) && oneContains(words, new String[]{ "releas", "new", "hit", "first", "album" })) {
               type = TYPE.SINGLE_RELEASE;
@@ -162,24 +153,27 @@ public class NLP {
               type = TYPE.VIDEO_CLIP;
             }
 
-            System.out.println("ALBUM NAME : " + album_name);
             if (type != null) {
-              events.add(new Event(type, (Date) item.get("date")));
-              System.out.println(type);
-              System.out.println(message);
+              if (!eventsFound.containsKey(type)) {
+                eventsFound.put(type, new Event(type, (Date) item.get("date")));
+              }
               break;
             }
-            else {
-              //System.out.println("NO EVENT");
-              //System.out.println(message);
-            }
-            //ArrayList<CoreLabel> tSentence2 = tagger.tagCoreLabels(sentence);
-            //System.out.println(Sentence.listToString(tSentence, false));
-            //TokenSequenceMatcher matcher = pattern.matcher(tSentence2);
           }
         }
       }
     }
+    
+    System.out.println("events for :" + artist_name + " " + album_name);
+    for (TYPE everyType : Event.TYPE.values()) {
+      matrix_row.put("has_" + everyType.name().toLowerCase(), eventsFound.containsKey(everyType));
+      
+      if (eventsFound.containsKey(everyType)) {
+        long days = (release_date.getTime() - eventsFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+        matrix_row.put("days_" + everyType.name().toLowerCase(), days);
+      }
+    }
+    dbHelper.updateMatrixRow(matrix_row);
   }
   
   // return if the list of words contains at least one of the given stems
@@ -310,8 +304,7 @@ public class NLP {
     int limit = 0;
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
-      NLP worker = new NLP((ObjectId) item.get("artistId"), (ObjectId) item.get("albumId"), 
-          (Date) item.get("albumReleaseDate"), (String) item.get("artistName"), (String) item.get("albumName"), tagger);
+      NLP worker = new NLP(item, tagger);
       worker.run();
       limit++;
       if (limit > 30) {
