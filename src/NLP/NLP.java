@@ -49,6 +49,9 @@ public class NLP {
     this.tagger = tagger;
     this.artist_name = (String) matrix_row.get("artistName");
     this.album_name =  (String) matrix_row.get("albumName");
+    if (album_name == null) {
+      album_name = "";
+    }
   }
   
   public void run() {
