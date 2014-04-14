@@ -84,7 +84,7 @@ public class NLP {
     
     HashMap<TYPE, Event> eventsFound = new HashMap<TYPE, Event>();
     
-    System.out.println(artist_id + " " + album_id);
+    System.out.println("treating : " + artist_name + " " + album_name);
     
     BasicDBObject query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     DBCursor cursor = dbHelper.findTweetsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
@@ -173,6 +173,7 @@ public class NLP {
         matrix_row.put("days_" + everyType.name().toLowerCase(), days);
       }
     }
+    System.out.println("found : " + eventsFound.size()  + " events");
     dbHelper.updateMatrixRow(matrix_row);
   }
   
@@ -301,15 +302,12 @@ public class NLP {
     
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
-    int limit = 0;
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       NLP worker = new NLP(item, tagger);
       worker.run();
-      limit++;
-      if (limit > 30) {
-        break;
-      }
     }
+    
+    System.out.println("NLP DONE");
   }
 }
