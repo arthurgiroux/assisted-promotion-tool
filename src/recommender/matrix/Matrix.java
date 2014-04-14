@@ -38,14 +38,14 @@ public class Matrix {
         String artistName = (String) artist.get("name");
         String artistCountry = (String) artist.get("country");
         String artistRegion = ( String) artist.get("region");
-        double artistHotness = (double) artist.get("hotness");
+        double artistHotness = (Double) artist.get("hotness");
         
-        int artistFBLikes = (int) ((artist.get("facebook_likes") == null) ? 0 : artist.get("facebook_likes"));
+        int artistFBLikes = (Integer) ((artist.get("facebook_likes") == null) ? 0 : artist.get("facebook_likes"));
         
         
         
         //artist.get("album_count"); ???
-        Integer twitterFollowers = (int) ((artist.get("twitter_followers") == null) ? 0 : artist.get("twitter_followers"));
+        Integer twitterFollowers = (Integer) ((artist.get("twitter_followers") == null) ? 0 : artist.get("twitter_followers"));
         
         db.insertMatrixRow(
             albumId,

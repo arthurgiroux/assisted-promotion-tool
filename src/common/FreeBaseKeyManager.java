@@ -23,7 +23,6 @@ public class FreeBaseKeyManager {
   }
   
   public String getKey() {
-    System.out.println("API key " + keys[index]);
     return keys[index];
   }
   
