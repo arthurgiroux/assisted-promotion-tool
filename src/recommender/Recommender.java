@@ -11,7 +11,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import common.DBHelper;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import static common.DBHelper.*;
 import java.util.Date;
@@ -21,27 +20,24 @@ import java.util.Date;
  * @author mikaelcastellani
  */
 public class Recommender {
-    
+
     public static float thresholdCosim = 0.9f;
-    
+
     public static float FBLikesWeight = 0.4f;
     public static float TwitterFollowersWeight = 0.4f;
     public static float NumberOfAlbumsWeight = 0.0f;
     public static float RegionWeight = 0.2f;
     public static float CategoryWeight = 0.0f;
-    
-    
 
     public static void main(String[] args) {
         try {
             Date start = new Date();
-            
-            if(FBLikesWeight+TwitterFollowersWeight+NumberOfAlbumsWeight+RegionWeight+CategoryWeight>1){
+
+            if (FBLikesWeight + TwitterFollowersWeight + NumberOfAlbumsWeight + RegionWeight + CategoryWeight > 1) {
                 System.out.println("Check the weights");
                 System.exit(0);
             }
-            
-            
+
             DBHelper db = DBHelper.getInstance();
 
             DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
@@ -58,14 +54,14 @@ public class Recommender {
                 if (cosim > thresholdCosim) {
                     counter++;
                     similarResults.add(obj2);
+                    System.out.println(obj2.toString());
                 }
 
             }
-            
+
             System.out.println(counter + " matches found.");
-            
-            System.out.println("Time elapsed : " + (new Date().getTime() - start.getTime())/1000.0 + " seconds");
-            
+
+            System.out.println("Time elapsed : " + (new Date().getTime() - start.getTime()) / 1000.0 + " seconds");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,17 +112,10 @@ public class Recommender {
                     / Math.max((Integer) (obj1.get(NUMBEROFALBUMS)), (Integer) (obj2.get(NUMBEROFALBUMS)));
         }
 
-//        a_norm = Math.sqrt(cossimFb + cossimTw + cossimAlbums + sameRegion + sameCategories);
-//        //b_norm = Math.sqrt(cossimFb + cossimTw + cossimAlbums + sameRegion + sameCategories);
-//
-//        sum = 
-//        
-//        dot_prod = (A.nb_albums * B.nb_albums) + (A.country * B.country) + (A.genre * B.genre) + (A.fb_likes * B.fb_likes) + (A.tw_fol * B.tw_fol);
-//        cos_sim = dot_prod / (a_norm * b_norm);
-        return (FBLikesWeight*cossimFb + 
-                TwitterFollowersWeight*cossimTw + 
-                NumberOfAlbumsWeight*cossimAlbums +
-                RegionWeight*sameRegion + 
-                CategoryWeight*sameCategories);
+        return (FBLikesWeight * cossimFb
+                + TwitterFollowersWeight * cossimTw
+                + NumberOfAlbumsWeight * cossimAlbums
+                + RegionWeight * sameRegion
+                + CategoryWeight * sameCategories);
     }
 }

@@ -30,7 +30,7 @@ public class DBHelper {
     private static final String FBPOSTSCOLLECTION = "fbpostsCollection";
     private static final String TWEETSCOLLECTION = "tweetsNLPBackup";
 
-    private static final String MATRIXCOLLECTION = "matrixCollection";
+    private static final String MATRIXCOLLECTION = "matrixSandbox";
 
     public static String REGION = "region";
     public static String CATEGORY = "category";
@@ -152,13 +152,14 @@ public class DBHelper {
     }
 
     public void insertFbPosts(ObjectId artist_id, Date date, String message, int likes, int shares,
-            boolean picture_attached) {
+            boolean picture_attached, BasicDBList commentsList) {
         BasicDBObject new_post = new BasicDBObject("artist_id", artist_id).
                 append("date", date).
                 append("message", message).
                 append("likes", likes).
                 append("shares", shares).
-                append("picture_attached", picture_attached);
+                append("picture_attached", picture_attached).
+                append("comments", commentsList);
         fbpostsCollection.insert(new_post);
     }
 
