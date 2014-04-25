@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.bson.types.ObjectId;
 
@@ -14,9 +15,16 @@ import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.CoreMap;
 import common.DBHelper;
 import common.Event;
 import common.Event.TYPE;
@@ -75,7 +83,8 @@ public class NLP {
     HashMap<TYPE, Event> eventsTwitterFound = new HashMap<TYPE, Event>();
     HashMap<TYPE, Event> eventsFacebookFound = new HashMap<TYPE, Event>();
     
-    System.out.println("treating : " + artist_name + " " + album_name);
+    System.out.println("treating : " + artist_name + " ("+ artist_id + ") " + album_name);
+    System.out.println("searching between : " + date + " and " + release_date);
     
     BasicDBObject query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     DBCursor cursor = dbHelper.findTweetsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
@@ -127,15 +136,14 @@ public class NLP {
         }
       }
     }
-    
 
     // Facebook:
-    query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     cursor = dbHelper.findFBPostsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
-    
+
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       String message = (String) item.get("message");
+      System.out.println(message);
       if (message == null) {
         continue;
       }
@@ -167,7 +175,33 @@ public class NLP {
             TYPE type = getTypeFromMessage(words, words_str);
             if (type != null) {
               if (!eventsFacebookFound.containsKey(type)) {
-                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date")));
+                // Sentiment analysis on responses :
+                
+                System.out.println("sentiment analysis");
+                float score = 0;
+                int count = 0;
+                
+                ArrayList<DBObject> replies = (ArrayList<DBObject>) item.get("comments");
+                for (DBObject reply : replies) {
+                  String commentsMessage = (String) reply.get("message");
+                  System.out.println("Comments " + commentsMessage);
+                  int sentiment = findSentimentForMessage(commentsMessage);
+                  if (sentiment != 0) {
+                    score += sentiment;
+                    count++;
+                  }
+                }
+                
+                if (count == 0) {
+                  score = 0;
+                }
+                else {
+                  score /= count;
+                }
+                System.out.println("found score " + score);
+                
+                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date"), score));
+                return;
               }
               break;
             }
@@ -189,15 +223,18 @@ public class NLP {
       
       matrix_row.put("has_facebook_" + everyType.name().toLowerCase(), eventsFacebookFound.containsKey(everyType));
       
-      if (eventsTwitterFound.containsKey(everyType)) {
-        long days = (release_date.getTime() - eventsTwitterFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+      if (eventsFacebookFound.containsKey(everyType)) {
+        long days = (release_date.getTime() - eventsFacebookFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+        Event ev = eventsFacebookFound.get(everyType);
         matrix_row.put("days_facebook_" + everyType.name().toLowerCase(), days);
+        matrix_row.put("score_facebook_" + everyType.name().toLowerCase(), ev.getScore());
       }
 
     }
     System.out.println("found : " + (eventsTwitterFound.size() + eventsFacebookFound.size())  + " events");
     dbHelper.updateMatrixRow(matrix_row);
   }
+  
   
   private TYPE getTypeFromMessage(ArrayList<String> words, String words_str) {
     TYPE type = null;
@@ -234,6 +271,44 @@ public class NLP {
     
     return type;
   }
+  
+
+  private int findSentimentForMessage(String message) {
+
+    Properties props = new Properties();
+    props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+    int mainSentiment = 0;
+    if (message != null && message.length() > 0) {
+      int longest = 0;
+      Annotation annotation = pipeline.process(message);
+      for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
+        int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
+        String partText = sentence.toString();
+        if (partText.length() > longest) {
+          mainSentiment = sentiment;
+          longest = partText.length();
+        }
+
+      }
+    }
+    // 0 = negative
+    // 2 = neutral
+    // 4 = positive
+    
+    // Remap neutral = 0, negative = -1, positive = 1
+    if (mainSentiment == 4) {
+      return 1;
+    }
+    else if (mainSentiment == 0) {
+      return -1;
+    }
+    else {
+      return 0;
+    }
+  }
+  
   
   // return if the list of words contains at least one of the given stems
   private boolean oneContains(ArrayList<String> words, String[] stems) {

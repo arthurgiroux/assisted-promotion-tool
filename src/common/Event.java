@@ -8,11 +8,19 @@ public class Event {
   
   private TYPE type;
   private Date date;
+  private float score = 0;
   
   public Event(TYPE type, Date date) {
     super();
     this.type = type;
     this.date = date;
+  }
+  
+  public Event(TYPE type, Date date, float score) {
+    super();
+    this.type = type;
+    this.date = date;
+    this.score = score;
   }
 
   public TYPE getType() {
@@ -21,6 +29,10 @@ public class Event {
 
   public Date getDate() {
     return date;
+  }
+  
+  public float getScore() {
+    return score;
   }
 
 }
