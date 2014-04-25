@@ -41,6 +41,8 @@ public class NLP {
   
   private final static String[] STEMS = {"launch", "conference", "publish", "avail", "store", "releas", "album", "singl", "new", "interview" , "press", "campaign", "cover", "video", "clip", "hit", "countdown", "first", "show", "announc", "CD" };
   
+  public int counter = 0;
+  
   public NLP(DBObject matrix_row, MaxentTagger tagger) {
     this.matrix_row = matrix_row;
     this.artist_id = (ObjectId) matrix_row.get("artistId");
@@ -55,18 +57,6 @@ public class NLP {
   }
   
   public void run() {
-    /*
-     * release of a single
-        CD release show
-        press campaign for album
-        pre-sale campaign
-        first twitter announcement
-        first facebook announcement 
-        count down
-        album announcement
-        album cover (picture)
-
-     */
     DBHelper dbHelper = DBHelper.getInstance();
     
     Calendar c = Calendar.getInstance(); 
@@ -116,6 +106,8 @@ public class NLP {
           ArrayList<TaggedWord> tSentence = tagger.tagSentence(sentence);
           ArrayList<String> words = new ArrayList<String>();
           String words_str = "";
+          
+          counter++;
           
           for (TaggedWord word : tSentence) {
             words_str += word.value() + " ";
@@ -177,7 +169,7 @@ public class NLP {
       }
     }
     System.out.println("found : " + eventsFound.size()  + " events");
-    dbHelper.updateMatrixRow(matrix_row);
+    //dbHelper.updateMatrixRow(matrix_row);
   }
   
   // return if the list of words contains at least one of the given stems
@@ -304,12 +296,17 @@ public class NLP {
     MaxentTagger tagger = new MaxentTagger("models/english-left3words-distsim.tagger");
     
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+    
+    int counter = 0;
 
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       NLP worker = new NLP(item, tagger);
       worker.run();
+      counter += worker.counter;
     }
+    
+    System.out.println("NLP on : " + counter);
     
     System.out.println("NLP DONE");
   }
