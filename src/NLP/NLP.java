@@ -24,9 +24,7 @@ import common.Event.TYPE;
 public class NLP {
   
   private ObjectId artist_id;
-  
-  private ObjectId album_id;
-  
+    
   private Date release_date;
   
   private MaxentTagger tagger;
@@ -46,7 +44,6 @@ public class NLP {
   public NLP(DBObject matrix_row, MaxentTagger tagger) {
     this.matrix_row = matrix_row;
     this.artist_id = (ObjectId) matrix_row.get("artistId");
-    this.album_id = (ObjectId) matrix_row.get("albumId");
     this.release_date = (Date) matrix_row.get("albumReleaseDate");
     this.tagger = tagger;
     this.artist_name = (String) matrix_row.get("artistName");
@@ -75,13 +72,15 @@ public class NLP {
       date = c.getTime();
     }
     
-    HashMap<TYPE, Event> eventsFound = new HashMap<TYPE, Event>();
+    HashMap<TYPE, Event> eventsTwitterFound = new HashMap<TYPE, Event>();
+    HashMap<TYPE, Event> eventsFacebookFound = new HashMap<TYPE, Event>();
     
     System.out.println("treating : " + artist_name + " " + album_name);
     
     BasicDBObject query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     DBCursor cursor = dbHelper.findTweetsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
-        
+    
+    // Twitter
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       String message = (String) item.get("message");
@@ -116,41 +115,11 @@ public class NLP {
          
           // We check for possessive rules
           if (keepMessage(tSentence)) {
-            TYPE type = null;
-            if (oneContains(words, new String[] { "singl" }) && oneContains(words, new String[]{ "releas", "new", "hit", "first", "album" })) {
-              type = TYPE.SINGLE_RELEASE;
-            }
-            else if (containsAll(words,new String[] {"CD", "releas", "show" })) {
-              type = TYPE.CD_RELEASE_SHOW;
-            }
-            else if (oneContains(words, new String[] { "press" }) && oneContains(words, new String[] { "conference", "interview", "campaign", "releas" })) {
-              type = TYPE.PRESS_CAMPAIGN;
-            }
-            else if (oneContains(words, new String[] { "presale", "pre-sale", "preorder", "pre-order" }) && oneContains(words, new String[] { "album", "CD" })) {
-              type = TYPE.PRESALE_CAMPAIGN;
-            }
-            else if (!oneContains(words, new String[] { "tour" }) && (oneContains(words, new String[] { "countdown" }) || containsAll(words, new String[] { "day", "releas" }) || words_str.toLowerCase().contains(album_name.toLowerCase()))) {
-              type = TYPE.COUNTDOWN;
-            }
-            else if (containsAll(words, new String[] { "album", "cover", "releas" })) {
-              type = TYPE.ALBUM_COVER;
-            }
-            else if (oneContains(words, new String[] { "interview"})) {
-              type = TYPE.INTERVIEW;
-            }
-            else if (containsAll(words, new String[] { "announc", "album" })) {
-              type = TYPE.ANNOUNCEMENT;
-            }
-            else if (containsAll(words, new String[] { "teaser", "album" })) {
-              type = TYPE.TEASER;
-            }
-            else if (oneContains(words, new String[] { "video", "clip" })) {
-              type = TYPE.VIDEO_CLIP;
-            }
 
+            TYPE type = getTypeFromMessage(words, words_str);
             if (type != null) {
-              if (!eventsFound.containsKey(type)) {
-                eventsFound.put(type, new Event(type, (Date) item.get("date")));
+              if (!eventsTwitterFound.containsKey(type)) {
+                eventsTwitterFound.put(type, new Event(type, (Date) item.get("date")));
               }
               break;
             }
@@ -159,17 +128,111 @@ public class NLP {
       }
     }
     
-    System.out.println("events for :" + artist_name + " " + album_name);
-    for (TYPE everyType : Event.TYPE.values()) {
-      matrix_row.put("has_" + everyType.name().toLowerCase(), eventsFound.containsKey(everyType));
+
+    // Facebook:
+    query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
+    cursor = dbHelper.findFBPostsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+    
+    while (cursor.hasNext()) {
+      DBObject item = cursor.next();
+      String message = (String) item.get("message");
+      if (message == null) {
+        continue;
+      }
+      int stemsFound = 0;
+      for (String stem : STEMS) {
+        if (message.contains(stem)) {
+          stemsFound++;
+        }
+      }
       
-      if (eventsFound.containsKey(everyType)) {
-        long days = (release_date.getTime() - eventsFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
-        matrix_row.put("days_" + everyType.name().toLowerCase(), days);
+      if (stemsFound > 0) {
+        List<List<HasWord>> sentences = MaxentTagger.tokenizeText(new StringReader(message));
+        
+        for (List<HasWord> sentence : sentences) {
+          ArrayList<TaggedWord> tSentence = tagger.tagSentence(sentence);
+          ArrayList<String> words = new ArrayList<String>();
+          String words_str = "";
+          
+          counter++;
+          
+          for (TaggedWord word : tSentence) {
+            words_str += word.value() + " ";
+            words.add(word.value());
+          }
+         
+          // We check for possessive rules
+          if (keepMessage(tSentence)) {
+
+            TYPE type = getTypeFromMessage(words, words_str);
+            if (type != null) {
+              if (!eventsFacebookFound.containsKey(type)) {
+                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date")));
+              }
+              break;
+            }
+          }
+        }
       }
     }
-    System.out.println("found : " + eventsFound.size()  + " events");
-    //dbHelper.updateMatrixRow(matrix_row);
+   
+    
+    
+    System.out.println("events for :" + artist_name + " " + album_name);
+    for (TYPE everyType : Event.TYPE.values()) {
+      matrix_row.put("has_twitter_" + everyType.name().toLowerCase(), eventsTwitterFound.containsKey(everyType));
+      
+      if (eventsTwitterFound.containsKey(everyType)) {
+        long days = (release_date.getTime() - eventsTwitterFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+        matrix_row.put("days_twitter_" + everyType.name().toLowerCase(), days);
+      }
+      
+      matrix_row.put("has_facebook_" + everyType.name().toLowerCase(), eventsFacebookFound.containsKey(everyType));
+      
+      if (eventsTwitterFound.containsKey(everyType)) {
+        long days = (release_date.getTime() - eventsTwitterFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+        matrix_row.put("days_facebook_" + everyType.name().toLowerCase(), days);
+      }
+
+    }
+    System.out.println("found : " + (eventsTwitterFound.size() + eventsFacebookFound.size())  + " events");
+    dbHelper.updateMatrixRow(matrix_row);
+  }
+  
+  private TYPE getTypeFromMessage(ArrayList<String> words, String words_str) {
+    TYPE type = null;
+    if (oneContains(words, new String[] { "singl" }) && oneContains(words, new String[]{ "releas", "new", "hit", "first", "album" })) {
+      type = TYPE.SINGLE_RELEASE;
+    }
+    else if (containsAll(words,new String[] {"CD", "releas", "show" })) {
+      type = TYPE.CD_RELEASE_SHOW;
+    }
+    else if (oneContains(words, new String[] { "press" }) && oneContains(words, new String[] { "conference", "interview", "campaign", "releas" })) {
+      type = TYPE.PRESS_CAMPAIGN;
+    }
+    else if (oneContains(words, new String[] { "presale", "pre-sale", "preorder", "pre-order" }) && oneContains(words, new String[] { "album", "CD" })) {
+      type = TYPE.PRESALE_CAMPAIGN;
+    }
+    else if (!oneContains(words, new String[] { "tour" }) && (oneContains(words, new String[] { "countdown" }) || containsAll(words, new String[] { "day", "releas" }) || words_str.toLowerCase().contains(album_name.toLowerCase()))) {
+      type = TYPE.COUNTDOWN;
+    }
+    else if (containsAll(words, new String[] { "album", "cover", "releas" })) {
+      type = TYPE.ALBUM_COVER;
+    }
+    else if (oneContains(words, new String[] { "interview"})) {
+      type = TYPE.INTERVIEW;
+    }
+    else if (containsAll(words, new String[] { "announc", "album" })) {
+      type = TYPE.ANNOUNCEMENT;
+    }
+    else if (containsAll(words, new String[] { "teaser", "album" })) {
+      type = TYPE.TEASER;
+    }
+    else if (oneContains(words, new String[] { "video", "clip" })) {
+      type = TYPE.VIDEO_CLIP;
+    }
+    
+    return type;
   }
   
   // return if the list of words contains at least one of the given stems
