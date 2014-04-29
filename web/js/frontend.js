@@ -48,6 +48,7 @@ $(document).ready(function () {
 		return element;
 	};
 
+	$("#releaseDate").val(new Date().toJSON().slice(0,10));
 
 	$('#beginButton').click(function () {
 		$('#formContainer').fadeIn();
@@ -56,6 +57,8 @@ $(document).ready(function () {
 	
 	$('#recommandationForm').submit(function (e) {
 		e.preventDefault();
+
+		// Some integrity checks are missing here...
 
 		var releaseDate = new Date($("#releaseDate").val());
 
