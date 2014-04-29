@@ -243,12 +243,17 @@ public class Recommender {
             
             HashMap<String, Double> sortedFinalResult = (HashMap<String, Double>)sortByValue(finalResult);
             
+            boolean first = true;
+            System.out.println("[");
             Iterator it = sortedFinalResult.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pairs = (Map.Entry)it.next();
-                System.out.println(pairs.getKey() + " = " + pairs.getValue());
+                if (!first) System.out.println(",");
+                first = false;
+                System.out.print("{\"" + pairs.getKey() + "\" : " + pairs.getValue() + "}");
                 it.remove(); // avoids a ConcurrentModificationException
             }
+            System.out.println("]");
             
             
         } catch (Exception e) {

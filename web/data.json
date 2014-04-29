@@ -1,0 +1,26 @@
+{
+	"days_countdown" : {
+		"title" : "Title days_countdown",
+		"text" : "Text days_countdown"
+	},
+	"days_video_clip" : {
+		"title" : "Title days_video_clip",
+		"text" : "Text days_video_clip"
+	},
+	"days_press_campaign" : {
+		"title" : "Title days_press_campaign",
+		"text" : "Text days_press_campaign"
+	},
+	"days_presale_campaign" : {
+		"title" : "Title days_presale_campaign",
+		"text" : "Text days_presale_campaign"
+	},
+	"days_interview" : {
+		"title" : "Title days_interview",
+		"text" : "Text days_interview"
+	},
+	"days_single_release" : {
+		"title" : "Title days_single_release",
+		"text" : "Text days_single_release"
+	}
+}

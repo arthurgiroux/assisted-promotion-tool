@@ -17,9 +17,6 @@
     <!-- Custom styles for this template -->
     <link href="css/bdp.css" rel="stylesheet">
 
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -61,8 +58,6 @@
       </div>
     </div>
 
-    <hr />
-
     <div class="container" id="formContainer">
       <h1>Get a recommandation</h1>
       <form class="form-horizontal" id="recommandationForm" role="form">
@@ -99,6 +94,12 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="releaseDate" class="col-sm-2 control-label">Release date</label>
+          <div class="col-sm-4">
+            <input type="date" class="form-control" id="releaseDate" placeholder="Release date" />
+          </div>
+        </div>
+        <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
             <button type="submit" class="btn btn-primary">Get my recommandation !</button>
           </div>
@@ -106,14 +107,12 @@
       </form>
     </div>
 
-    <hr />
-
     <div class="container" id="timelineContainer">
       <div class="page-header">
         <h1 id="timeline">Timeline</h1>
       </div>
-      <ul class="timeline">
-        <li>
+      <ul class="timeline" id="timelineContent">
+        <!--li>
           <div class="timeline-badge"><i class="glyphicon glyphicon-bullhorn"></i></div>
           <div class="timeline-panel">
             <div class="timeline-heading">
@@ -193,7 +192,7 @@
               <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis. Mé faiz elementum girarzis, nisi eros vermeio, in elementis mé pra quem é amistosis quis leo. Manduma pindureta quium dia nois paga. Sapien in monti palavris qui num significa nadis i pareci latim. Interessantiss quisso pudia ce receita de bolis, mais bolis eu num gostis.</p>
             </div>
           </div>
-        </li>
+        </li-->
       </ul>
     </div>
 
