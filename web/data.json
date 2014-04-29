@@ -1,26 +1,26 @@
-{
-	"days_countdown" : {
-		"title" : "Title days_countdown",
-		"text" : "Text days_countdown"
+[
+	{
+		"event" : "days_countdown",
+		"days" : 12.833333333333334
 	},
-	"days_video_clip" : {
-		"title" : "Title days_video_clip",
-		"text" : "Text days_video_clip"
+	{
+		"event" : "days_video_clip",
+		"days" : 29.5
 	},
-	"days_press_campaign" : {
-		"title" : "Title days_press_campaign",
-		"text" : "Text days_press_campaign"
+	{
+		"event" : "days_press_campaign",
+		"days" : 32.0
 	},
-	"days_presale_campaign" : {
-		"title" : "Title days_presale_campaign",
-		"text" : "Text days_presale_campaign"
+	{
+		"event" : "days_presale_campaign",
+		"days" : 34.25
 	},
-	"days_interview" : {
-		"title" : "Title days_interview",
-		"text" : "Text days_interview"
+	{
+		"event" : "days_interview",
+		"days" : 34.666666666666664
 	},
-	"days_single_release" : {
-		"title" : "Title days_single_release",
-		"text" : "Text days_single_release"
+	{
+		"event" : "days_single_release",
+		"days" : 43.66666666666666
 	}
-}
+]
