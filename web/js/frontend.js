@@ -48,7 +48,28 @@ $(document).ready(function () {
 		return element;
 	};
 
-	$("#releaseDate").val(new Date().toJSON().slice(0,10));
+	var getTodayDateValue = function () {
+		var date = new Date();
+
+		// Format YYYY-MM-DD
+		var s = date.getFullYear() + "-";
+
+		// Months in [0-11]
+		if (date.getMonth() < 9) {
+			s += "0";
+		}
+		s += (date.getMonth() + 1) + "-";
+
+		// Days in [1-31]
+		if (date.getDate() < 10) {
+			s += "0";
+		}
+		s += date.getDate();
+
+		return s;
+	};
+
+	$("#releaseDate").val(getTodayDateValue());
 
 	$('#beginButton').click(function () {
 		$('#formContainer').fadeIn();
