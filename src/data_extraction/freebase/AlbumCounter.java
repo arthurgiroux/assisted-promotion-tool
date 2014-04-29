@@ -17,73 +17,74 @@ import org.json.simple.parser.JSONParser;
 
 public class AlbumCounter {
 
-    private static String getQuery(String artistName) {
-        String query = "[{"
-                + "\"type\": \"/music/album\","
-                + "\"artist\": \"" + JSONObject.escape(artistName) + "\","
-                //+ "\"album_content_type\": \"Studio album\"," // Seems too restrictive
-                + "\"release_type\": \"Album\"," 
-                + "\"return\": \"count\""
-                + "}]";
-        return query;
+  private static String getQuery(String artistName) {
+    String query = "[{"
+        + "\"type\": \"/music/album\","
+        + "\"artist\": \"" + JSONObject.escape(artistName) + "\","
+        //+ "\"album_content_type\": \"Studio album\"," // Seems too restrictive
+        + "\"release_type\": \"Album\"," 
+        + "\"return\": \"count\""
+        + "}]";
+    return query;
+  }
+
+  private static int getAlbumCountForArtist(String artistName) throws Error {
+
+    HttpTransport httpTransport = new NetHttpTransport();
+    HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+
+    GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/mqlread");
+    url.put("key", FreeBaseKeyManager.getInstance().getKey());
+    url.put("query", getQuery(artistName));
+
+    HttpRequest request;
+
+    try {
+      request = requestFactory.buildGetRequest(url);
+      HttpResponse httpResponse = request.execute();
+
+      JSONObject response = (JSONObject) new JSONParser().parse(httpResponse.parseAsString());
+
+      JSONArray r = (JSONArray) (response.get("result"));
+
+      return ((Long) (r.get(0))).intValue();
+
+    } catch (IOException e) {
+      if (e.getMessage().contains("dailyLimitExceeded")) {
+        FreeBaseKeyManager.getInstance().useNext();
+        return getAlbumCountForArtist(artistName);
+      }
+      System.err.println(e.getMessage());
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
     }
 
-    private static int getAlbumCountForArtist(String artistName) throws Error {
+    throw new Error("Could not retrieve album count for " + artistName);
+  }
 
-        HttpTransport httpTransport = new NetHttpTransport();
-        HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+  public static void main(String[] args) {
 
-        GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/mqlread");
-        url.put("key", FreeBaseKeyManager.getInstance().getKey());
-        url.put("query", getQuery(artistName));
+    DBHelper db = DBHelper.getInstance();
 
-        HttpRequest request;
+    DBCursor cursor = db.findAllArtists();
 
-        try {
-            request = requestFactory.buildGetRequest(url);
-            HttpResponse httpResponse = request.execute();
+    while (cursor.hasNext()) {
+      DBObject item = cursor.next();
+      String name = (String) (item.get("name"));
+      try {
+        int albumCount = getAlbumCountForArtist(name);
 
-            JSONObject response = (JSONObject) new JSONParser().parse(httpResponse.parseAsString());
+        //System.out.println(name + " : " + albumCount);
 
-            JSONArray r = (JSONArray) (response.get("result"));
-
-            return ((Long) (r.get(0))).intValue();
-
-        } catch (IOException e) {
-            if (e.getMessage().contains("dailyLimitExceeded")) {
-                FreeBaseKeyManager.getInstance().useNext();
-                return getAlbumCountForArtist(artistName);
-            }
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        throw new Error("Could not retrieve album count for " + artistName);
+        db.updateArtistAlbumCount(item, albumCount);
+      } catch (Error e) {
+        db.updateArtistAlbumCount(item, -1);
+        //System.out.println(name + " : -1");
+        //System.err.println(e.getMessage());
+        continue;
+      }
     }
 
-    public static void main(String[] args) {
-        DBHelper db = DBHelper.getInstance();
-
-        DBCursor cursor = db.findAllArtists();
-
-        while (cursor.hasNext()) {
-            try {
-
-                DBObject item = cursor.next();
-
-                String name = (String) (item.get("name"));
-                
-                int albumCount = getAlbumCountForArtist(name);
-
-                System.out.println(name + " : " + albumCount);
-                
-                //db.updateArtistAlbumCount(item, albumCount); REFINE THE QUERY FIRST
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-        }
-        
-        cursor.close();
-    }
+    cursor.close();
+  }
 }
