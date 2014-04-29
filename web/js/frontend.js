@@ -94,11 +94,5 @@ $(document).ready(function () {
 			console.log(data);
 			alert("There was a problem while retrieving the data.");
 		});
-
-		
-
-		// Displays the timeline
-		$('#timelineContainer').fadeIn();
-		$.scrollTo($('#timelineContainer'), 800);
 	});
 });
