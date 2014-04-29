@@ -29,7 +29,7 @@
 
   <body>
 
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <!--div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -45,27 +45,27 @@
             <li class="active"><a href="#">Home</a></li>
             <li><a href="#blabla">Get a recommandation</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
+        </div>
       </div>
-    </div>
+    </div-->
 
-    // Simple homepage
     <div class="container">
       <div class="jumbotron">
         <h1>What is this ?</h1>
 
         <p class="lead">The project goal will be to help you launch your music album in the best way possible, you will enter some information about your album like the launching date, the goal in terms of popularity that you want to reach and the project will establish a timeline and tell you what to do. For example: Let’s say that you want to launch a music album in 6 months. The project will tell you to release a first song on Youtube in 1 month, post the album cover on your Facebook page in two months; do an AMA on reddit in 4 months etc.</p>
 
-        <p class="text-center"><button class="btn btn-primary btn-lg">Get a recommandation !</button></p>
+        <p class="text-center">
+          <button class="btn btn-primary btn-lg" id="beginButton">Get a recommandation !</button>
+        </p>
       </div>
     </div>
 
     <hr />
-    // Get a recommandation page
 
-    <div class="container">
+    <div class="container" id="formContainer">
       <h1>Get a recommandation</h1>
-      <form class="form-horizontal" role="form">
+      <form class="form-horizontal" id="recommandationForm" role="form">
         <div class="form-group">
           <label for="countrySelect" class="col-sm-2 control-label">Country</label>
           <div class="col-sm-4">
@@ -107,9 +107,8 @@
     </div>
 
     <hr />
-    // Timeline sample
 
-    <div class="container">
+    <div class="container" id="timelineContainer">
       <div class="page-header">
         <h1 id="timeline">Timeline</h1>
       </div>
@@ -203,6 +202,8 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="js/jquery.scrollTo.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/frontend.js"></script>
   </body>
 </html>
