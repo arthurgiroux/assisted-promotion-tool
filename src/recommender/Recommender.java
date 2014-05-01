@@ -91,9 +91,9 @@ public class Recommender {
 
     for(DBObject matrixRow: similarResults){
       for (int i = 0; i < Event.NAMES.length; i++) {
-        boolean hasAttribute = (boolean) matrixRow.get("has_" + Event.NAMES[i]);
+        boolean hasAttribute = (Boolean) matrixRow.get("has_" + Event.NAMES[i]);
         if (hasAttribute) {
-          long attributeValue = (long) matrixRow.get("days_" + Event.NAMES[i]);
+          long attributeValue = (Long) matrixRow.get("days_" + Event.NAMES[i]);
 
           counters[i]++;
           sums[i] += attributeValue;
