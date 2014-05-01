@@ -96,6 +96,8 @@ $(document).ready(function () {
 			data: $(this).serialize(),
 			dataType: 'jsonp'
 		}).done(function (data) {
+			$('#timelineContent').empty();
+
 			// Constructs the timeline
 			for (var i in data) {
 				var obj = data[i];
