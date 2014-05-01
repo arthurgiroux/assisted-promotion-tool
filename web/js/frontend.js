@@ -94,7 +94,7 @@ $(document).ready(function () {
 			type: 'GET',
 			crossDomain: true,
 			data: $(this).serialize(),
-			dataType: 'json'
+			dataType: 'jsonp'
 		}).done(function (data) {
 			// Constructs the timeline
 			for (var i in data) {
