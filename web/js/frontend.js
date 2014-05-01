@@ -83,12 +83,6 @@ $(document).ready(function () {
 
 		var releaseDate = new Date($("#releaseDate").val());
 
-		$('#timelineContent').append(createTimelineElement({
-			title : "Release date",
-			message : "Test",
-			date : months[releaseDate.getMonth()+1] + " " + releaseDate.getDate()
-		}));
-
 		$.ajax({
 			url: 'http://icdatasrv4.epfl.ch:8000/recommend',
 			type: 'GET',
@@ -98,6 +92,12 @@ $(document).ready(function () {
 		}).done(function (data) {
 			$('#timelineContent').empty();
 
+			$('#timelineContent').append(createTimelineElement({
+				title : "Release date",
+				message : "Test",
+				date : months[releaseDate.getMonth()+1] + " " + releaseDate.getDate()
+			}));
+			
 			// Constructs the timeline
 			for (var i in data) {
 				var obj = data[i];
