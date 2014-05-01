@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -81,7 +82,8 @@ public class WebServer {
       } catch (NullPointerException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       }
-
+      Headers header = t.getResponseHeaders();
+      header.add("Content-Type", "application/json");
       t.sendResponseHeaders(200, response.length());
       OutputStream os = t.getResponseBody();
       os.write(response.getBytes());
