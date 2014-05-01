@@ -83,7 +83,7 @@ public class WebServer {
         response = "{ \"error\" : \"Malformed request\"}";
       }
       Headers header = t.getResponseHeaders();
-      header.add("Content-Type", "application/json");
+      header.add("Content-Type", "application/javascript");
       t.sendResponseHeaders(200, response.length());
       OutputStream os = t.getResponseBody();
       os.write(response.getBytes());
