@@ -55,6 +55,8 @@ public class WebServer {
       String response = "";
       
       try {
+        String callback = get.get("callback");
+        
         String region = get.get("region");
         String[] categories = get.get("categories").split(",");
         int facebookLikes = Integer.parseInt(get.get("fbLikes"));
@@ -64,7 +66,7 @@ public class WebServer {
         Recommender r = new Recommender(region, categories, facebookLikes, twitterFollowers, albumsCount);
         
         Map<String, Double> result = r.recommend();
-        response += "{[\n";
+        response += callback + "([\n";
         boolean first = true;
         for (Entry<String, Double> e : result.entrySet()) {
           if (!first) {
@@ -76,7 +78,7 @@ public class WebServer {
           response += "  }\n";
           first = false;
         }
-        response += "]}\n";
+        response += "])\n";
       } catch (NumberFormatException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       } catch (NullPointerException e) {
