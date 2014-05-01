@@ -90,10 +90,10 @@ $(document).ready(function () {
 		}));
 
 		$.ajax({
-			url: 'data.json',
+			url: 'http://icdatasrv4.epfl.ch:8000/recommend',
 			type: 'GET',
 			crossDomain: true,
-			//data: $(this).serialize(),
+			data: $(this).serialize(),
 			dataType: 'json'
 		}).done(function (data) {
 			// Constructs the timeline

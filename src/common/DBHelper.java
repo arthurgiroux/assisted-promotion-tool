@@ -32,7 +32,7 @@ public class DBHelper {
 
     private static final String MATRIXCOLLECTION = "matrixSandbox";
 
-    public static String REGION = "region";
+    public static String REGION = "artistRegion";
     public static String CATEGORY = "category";
     public static String NUMBEROFALBUMS = "album_count";
     public static String FACEBOOKLIKES = "facebook_likes";
