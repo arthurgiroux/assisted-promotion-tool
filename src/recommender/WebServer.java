@@ -64,7 +64,7 @@ public class WebServer {
         Recommender r = new Recommender(region, categories, facebookLikes, twitterFollowers, albumsCount);
         
         Map<String, Double> result = r.recommend();
-        response += "[\n";
+        response += "{[\n";
         boolean first = true;
         for (Entry<String, Double> e : result.entrySet()) {
           if (!first) {
@@ -76,7 +76,7 @@ public class WebServer {
           response += "  }\n";
           first = false;
         }
-        response += "]\n";
+        response += "]}\n";
       } catch (NumberFormatException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       } catch (NullPointerException e) {
