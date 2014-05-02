@@ -152,7 +152,7 @@ public class Recommender {
   }
 
   private double computeSim(int n1, int n2) {
-    return Math.exp(Math.min(n1, n2)) / Math.exp(Math.max(n1, n2));
+    return (n1 == n2) ? 1 : 1 - ((double) Math.abs(n1 - n2)) / Math.max(n1, n2);
   }
 
   public double computeSimilarity(DBObject obj) {
