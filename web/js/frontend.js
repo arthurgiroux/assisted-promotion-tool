@@ -38,7 +38,9 @@ $(document).ready(function () {
 
 		element.append('<div class="timeline-badge"><i class="glyphicon glyphicon-bullhorn"></i></div>');
 		panelHeading.append('<h4 class="timeline-title">' + data.title + '</h4>');
-		panelHeading.append('<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> on ' + data.date + '</small></p>');
+
+		var dateString = months[data.date.getMonth()+1] + " " + data.date.getDate() + ", " + data.date.getFullYear();
+		panelHeading.append('<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> on ' + dateString + '</small></p>');
 		panelBody.append('<p>' + data.message + '</p>');
 
 		element.append(panel);
@@ -95,7 +97,7 @@ $(document).ready(function () {
 			$('#timelineContent').append(createTimelineElement({
 				title : "Release date",
 				message : "Test",
-				date : months[releaseDate.getMonth()+1] + " " + releaseDate.getDate()
+				date : releaseDate
 			}));
 			
 			// Constructs the timeline
@@ -106,7 +108,7 @@ $(document).ready(function () {
 				$('#timelineContent').append(createTimelineElement({
 					title : events[obj.event].title,
 					message : events[obj.event].text,
-					date : months[d.getMonth()+1] + " " + d.getDate() + ", " + d.getFullYear()
+					date : d
 				}, i%2 == 0));
 			}
 
