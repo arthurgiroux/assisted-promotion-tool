@@ -39,7 +39,8 @@ public class WebServer {
 
         if (param.length == 2) {
           String key = URLDecoder.decode(param[0], System.getProperty("file.encoding"));
-          String value = URLDecoder.decode(param[1], System.getProperty("file.encoding"));
+          String value = get.get(key);
+          value = (value == null ? "" : value+",") + URLDecoder.decode(param[1], System.getProperty("file.encoding"));
 
           get.put(key, value);
         }
@@ -48,9 +49,9 @@ public class WebServer {
     }
     
     public void handle(HttpExchange t) throws IOException {
-      System.out.println(t.getRequestURI());
-      
       Map<String, String> get = parseGetParameters(t);
+      
+      System.out.println("Handling request : " + get);
       
       String response = "";
       

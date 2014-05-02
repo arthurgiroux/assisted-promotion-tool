@@ -82,7 +82,7 @@ $(document).ready(function () {
 		// Some integrity checks are missing here...
 
 		var releaseDate = new Date($("#releaseDate").val());
-
+		alert($(this).serialize());
 		$.ajax({
 			url: 'http://icdatasrv4.epfl.ch:8000/recommend',
 			type: 'GET',
