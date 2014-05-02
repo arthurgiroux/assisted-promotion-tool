@@ -26,6 +26,30 @@ $(document).ready(function () {
 		"days_single_release" : {
 			"title" : "Title days_single_release",
 			"text" : "Text days_single_release"
+		},
+		"days_cd_release_show" : {
+			"title" : "Title days_cd_release_show",
+			"text" : "Text days_cd_release_show"
+		},
+		"days_first_tweet" : {
+			"title" : "Title days_first_tweet",
+			"text" : "Text days_first_tweet"
+		},
+		"days_first_fb" : {
+			"title" : "Title days_first_fb",
+			"text" : "Text days_first_fb"
+		},
+		"days_announcement" : {
+			"title" : "Title days_announcement",
+			"text" : "Text days_announcement"
+		},
+		"days_album_cover" : {
+			"title" : "Title days_album_cover",
+			"text" : "Text days_album_cover"
+		},
+		"days_teaser" : {
+			"title" : "Title days_teaser",
+			"text" : "Text days_teaser"
 		}
 	};
 
