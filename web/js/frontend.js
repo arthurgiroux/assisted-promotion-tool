@@ -39,7 +39,7 @@ $(document).ready(function () {
 		element.append('<div class="timeline-badge"><i class="glyphicon glyphicon-bullhorn"></i></div>');
 		panelHeading.append('<h4 class="timeline-title">' + data.title + '</h4>');
 
-		var dateString = months[data.date.getMonth()+1] + " " + data.date.getDate() + ", " + data.date.getFullYear();
+		var dateString = months[data.date.getMonth()] + " " + data.date.getDate() + ", " + data.date.getFullYear();
 		panelHeading.append('<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> on ' + dateString + '</small></p>');
 		panelBody.append('<p>' + data.message + '</p>');
 
