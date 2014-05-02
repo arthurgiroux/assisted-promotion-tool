@@ -106,7 +106,7 @@ $(document).ready(function () {
 				$('#timelineContent').append(createTimelineElement({
 					title : events[obj.event].title,
 					message : events[obj.event].text,
-					date : months[d.getMonth()+1] + " " + d.getDate()
+					date : months[d.getMonth()+1] + " " + d.getDate() + ", " + d.getFullYear()
 				}, i%2 == 0));
 			}
 
