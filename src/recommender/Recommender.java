@@ -38,13 +38,14 @@ import common.Event.TYPE;
  */
 public class Recommender {
 
-  public static float thresholdCosim = 0.75f;
+  private final static float THRESHOLD = 0.75f;
+  private final static int MIN_RESULTS_NB = 10;
 
-  public static float FBLikesWeight = 0.3f;
-  public static float TwitterFollowersWeight = 0.3f;
-  public static float NumberOfAlbumsWeight = 0.1f;
-  public static float RegionWeight = 0.2f;
-  public static float CategoryWeight = 0.1f;
+  private final static float FACEBOOK_LIKES_WEIGHT = 0.2f;
+  private final static float TWITTER_FOLLOWERS_WEIGHT = 0.2f;
+  private final static float ALBUMS_COUNT_WEIGHT = 0.2f;
+  private final static float REGION_WEIGHT = 0.2f;
+  private final static float CATEGORY_WEIGHT = 0.2f;
 
   private int[] counters = new int[TYPE.values().length];
   private int[] sums = new int[TYPE.values().length];
@@ -65,7 +66,7 @@ public class Recommender {
   }
 
   public Map<String, Double> recommend() {
-    if (FBLikesWeight + TwitterFollowersWeight + NumberOfAlbumsWeight + RegionWeight + CategoryWeight > 1) {
+    if (FACEBOOK_LIKES_WEIGHT + TWITTER_FOLLOWERS_WEIGHT + ALBUMS_COUNT_WEIGHT + REGION_WEIGHT + CATEGORY_WEIGHT > 1) {
       System.out.println("Check the weights");
       System.exit(0);
     }
@@ -74,19 +75,15 @@ public class Recommender {
 
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
-    Set<DBObject> similarResults = new HashSet<DBObject>();
-    
-    double max = 0;
+    Map<DBObject, Double> results = new HashMap<DBObject, Double>();
     
     while (cursor.hasNext()) {
       DBObject obj = cursor.next();
 
-      double cosim = computeSimilarity(obj);
-      
-      if (cosim > thresholdCosim) {
-        similarResults.add(obj);
-      }
+      results.put(obj, computeSimilarity(obj));
     }
+    
+    List<DBObject> similarResults = getSimilarResults(results);
     
 
     for(DBObject matrixRow: similarResults){
@@ -111,6 +108,34 @@ public class Recommender {
     
     return sortByValue(finalResult);
   }
+  
+  private List<DBObject> getSimilarResults(Map<DBObject, Double> map) {
+    List<DBObject> l = new LinkedList<DBObject>();
+    
+    // Adds all results with sim > THRESHOLD
+    for (Entry<DBObject, Double> e : map.entrySet()) {
+      if (e.getValue() > THRESHOLD) {
+        l.add(e.getKey());
+      }
+    }
+    
+    // Fills the list with best objects until it contains enough results
+    while (l.size() < MIN_RESULTS_NB) {
+      Entry<DBObject, Double> bestEntry = null;
+      
+      for (Entry<DBObject, Double> e : map.entrySet()) {
+        if (bestEntry == null || 
+            (e.getValue() > bestEntry.getValue() && !l.contains(e.getKey()))) 
+        {
+          bestEntry = e;
+        }
+      }
+      
+      l.add(bestEntry.getKey());
+    }
+    
+    return l;
+  }
 
   private boolean isOfsameCategory(DBObject obj) {
     BasicDBList categoryList = (BasicDBList) obj.get(CATEGORY);
@@ -127,8 +152,7 @@ public class Recommender {
   }
 
   private double computeSim(int n1, int n2) {
-    if (n1 == n2) return 1;
-    return 1 - ((double) Math.abs(n1 - n2)) / Math.max(n1, n2);
+    return Math.exp(Math.min(n1, n2)) / Math.exp(Math.max(n1, n2));
   }
 
   public double computeSimilarity(DBObject obj) {
@@ -141,11 +165,11 @@ public class Recommender {
     double cossimTw = computeSim(twitterFollowers, (Integer) (obj.get(TWITTERFOLLOWERS)));
     double cossimAlbums = computeSim(albumsCount, (Integer) (obj.get(NUMBEROFALBUMS)));
 
-    return (FBLikesWeight * cossimFb
-        + TwitterFollowersWeight * cossimTw
-        + NumberOfAlbumsWeight * cossimAlbums
-        + RegionWeight * sameRegion
-        + CategoryWeight * sameCategories);
+    return (FACEBOOK_LIKES_WEIGHT * cossimFb
+        + TWITTER_FOLLOWERS_WEIGHT * cossimTw
+        + ALBUMS_COUNT_WEIGHT * cossimAlbums
+        + REGION_WEIGHT * sameRegion
+        + CATEGORY_WEIGHT * sameCategories);
   }
 
 
