@@ -265,4 +265,9 @@ public class DBHelper {
      cleanFbpostsCollection.insert(fbpost);
      }
      */
+    
+    public DBObject findFBPostsById(ObjectId Id) {
+        BasicDBObject query = new BasicDBObject("_id", Id);
+        return fbpostsCollection.findOne(query);
+    }
 }
