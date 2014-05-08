@@ -270,4 +270,8 @@ public class DBHelper {
         BasicDBObject query = new BasicDBObject("_id", Id);
         return fbpostsCollection.findOne(query);
     }
+	public DBCursor findAllArtistsWithFB(){
+        //db.artistsCollection.find({facebook_likes:{$exists:true}})
+        return artistsCollection.find(new BasicDBObject("facebook_likes", new BasicDBObject("$exists", true)));
+    }
 }
