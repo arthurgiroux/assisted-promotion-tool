@@ -2,6 +2,8 @@ package common;
 
 import java.util.Date;
 
+import org.bson.types.ObjectId;
+
 public class Event {
   public static enum TYPE { SINGLE_RELEASE, CD_RELEASE_SHOW, PRESS_CAMPAIGN, PRESALE_CAMPAIGN, FIRST_TWEET, FIRST_FB,
     COUNTDOWN, ANNOUNCEMENT, ALBUM_COVER, INTERVIEW, VIDEO_CLIP, TEASER };
@@ -10,7 +12,7 @@ public class Event {
   
   private TYPE type;
   private Date date;
-  private float score = 0;
+  private ObjectId postId;
   
   public Event(TYPE type, Date date) {
     super();
@@ -18,11 +20,11 @@ public class Event {
     this.date = date;
   }
   
-  public Event(TYPE type, Date date, float score) {
+  public Event(TYPE type, Date date, ObjectId postId) {
     super();
     this.type = type;
     this.date = date;
-    this.score = score;
+    this.postId = postId;
   }
 
   public TYPE getType() {
@@ -33,8 +35,8 @@ public class Event {
     return date;
   }
   
-  public float getScore() {
-    return score;
+  public ObjectId getPostId() {
+    return postId;
   }
 
 }

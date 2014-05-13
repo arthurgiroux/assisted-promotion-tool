@@ -177,6 +177,7 @@ public class NLP {
               if (!eventsFacebookFound.containsKey(type)) {
                 // Sentiment analysis on responses :
                 
+                /*
                 System.out.println("sentiment analysis");
                 float score = 0;
                 int count = 0;
@@ -199,8 +200,8 @@ public class NLP {
                   score /= count;
                 }
                 System.out.println("found score " + score);
-                
-                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date"), score));
+                */
+                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date"), (ObjectId) item.get("_id")));
                 return;
               }
               break;
@@ -227,7 +228,7 @@ public class NLP {
         long days = (release_date.getTime() - eventsFacebookFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
         Event ev = eventsFacebookFound.get(everyType);
         matrix_row.put("days_facebook_" + everyType.name().toLowerCase(), days);
-        matrix_row.put("score_facebook_" + everyType.name().toLowerCase(), ev.getScore());
+        matrix_row.put("post_id_facebook_" + everyType.name().toLowerCase(), ev.getPostId());
       }
 
     }

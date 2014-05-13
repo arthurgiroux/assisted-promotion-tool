@@ -202,6 +202,16 @@ public class DBHelper {
     public DBCursor findAllArtists() {
         return artistsCollection.find();
     }
+    
+    public DBCursor findAllArtistsWithFB(){
+        //db.artistsCollection.find({facebook_likes:{$exists:true}})
+        return artistsCollection.find(new BasicDBObject("facebook_likes", new BasicDBObject("$exists", true)));
+    }
+    
+    public DBCursor findAllArtistsWithTW(){
+        //db.artistsCollection.find({twitter_followers:{$exists:true}})
+        return artistsCollection.find(new BasicDBObject("twitter_followers", new BasicDBObject("$exists", true)));
+    }
 
     public DBCursor findAllAlbums() {
         return albumsCollection.find();
@@ -265,4 +275,9 @@ public class DBHelper {
      cleanFbpostsCollection.insert(fbpost);
      }
      */
+    
+    public DBObject findFBPostsById(ObjectId Id) {
+        BasicDBObject query = new BasicDBObject("_id", Id);
+        return fbpostsCollection.findOne(query);
+    }
 }
