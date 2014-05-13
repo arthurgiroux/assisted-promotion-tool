@@ -11,23 +11,21 @@ import static common.DBHelper.NUMBEROFALBUMS;
 import static common.DBHelper.REGION;
 import static common.DBHelper.TWITTERFOLLOWERS;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-
 import common.DBHelper;
 import common.Event;
 import common.Event.TYPE;
@@ -119,34 +117,31 @@ public class Recommender {
     
     Entry<DBObject, Double> bestMatch = null;
     double simSum = 0;
-    double count = 0;
     
     for (Entry<DBObject, Double> r : results.entrySet()) {
       if (bestMatch == null || bestMatch.getValue() < r.getValue()) {
         bestMatch = r;
       }
       simSum += r.getValue();
-      count++;
     }
     
+    DecimalFormat df = new DecimalFormat( "0.000" );
     HashMap<String, String> stats = new HashMap<String, String>();
     
-    stats.put("average_sim_overall", (simSum / count)+"");
+    stats.put("average_sim_overall", df.format(simSum / results.size())+"");
     
     String bestMatchArtistName = (String) bestMatch.getKey().get("artistName");
     
     stats.put("best_match", bestMatchArtistName);
     
     simSum = 0;
-    count = 0;
     for (DBObject o : similarResults) {
       Double sim = results.get(o);
       simSum += (sim == null) ? 0 : sim;
-      count++;
     }
     
-    stats.put("artists_count", count+"");
-    stats.put("average_sim", (simSum / count)+"");
+    stats.put("artists_count", similarResults.size() +"");
+    stats.put("average_sim", df.format(simSum / similarResults.size())+"");
     
     return stats;
   }

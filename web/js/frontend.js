@@ -116,6 +116,13 @@ $(document).ready(function () {
 			data: $(this).serialize(),
 			dataType: 'jsonp'
 		}).done(function (data) {
+			$('#statsContent').empty();
+
+			var statsText = "This timeline was computed by aggregating the promotion timeline of " + data.stats.artists_count + " artists (avg. similarity : " + data.stats.average_sim + "). <br />";
+			statsText += "Average sim over all artists : " + data.stats.average_sim_overall + "<br />";
+			statsText += "Artist best match : " + data.stats.best_match + "<br />";
+			$('#statsContent').html(statsText);
+
 			$('#timelineContent').empty();
 
 			// Constructs the timeline
@@ -127,7 +134,7 @@ $(document).ready(function () {
 					title : events[obj.event].title,
 					message : events[obj.event].text,
 					date : d
-				}, i%2 == 0));
+				}, i%2 == 1));
 			}
 
 			$('#timelineContent').append(createTimelineElement({
