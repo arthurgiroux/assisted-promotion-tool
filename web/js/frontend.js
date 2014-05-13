@@ -118,15 +118,9 @@ $(document).ready(function () {
 		}).done(function (data) {
 			$('#timelineContent').empty();
 
-			$('#timelineContent').append(createTimelineElement({
-				title : "Release date",
-				message : "Test",
-				date : releaseDate
-			}));
-			
 			// Constructs the timeline
-			for (var i in data) {
-				var obj = data[i];
+			for (var i in data.results) {
+				var obj = data.results[i];
 				var d = new Date(releaseDate);
 				d.setDate(d.getDate() - Math.round(obj.days));
 				$('#timelineContent').append(createTimelineElement({
@@ -135,6 +129,12 @@ $(document).ready(function () {
 					date : d
 				}, i%2 == 0));
 			}
+
+			$('#timelineContent').append(createTimelineElement({
+				title : "Release date",
+				message : "Test",
+				date : releaseDate
+			}));
 
 			// Displays the timeline
 			$('#timelineContainer').fadeIn();

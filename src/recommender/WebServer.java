@@ -67,7 +67,11 @@ public class WebServer {
         Recommender r = new Recommender(region, categories, facebookLikes, twitterFollowers, albumsCount);
         
         Map<String, Double> result = r.recommend();
-        response += callback + "([\n";
+        
+        Map<String, String> stats = r.getStats();
+        
+        response += callback + "(\n";
+        response += "{\n \"results\" : [\n";
         boolean first = true;
         for (Entry<String, Double> e : result.entrySet()) {
           if (!first) {
@@ -76,10 +80,20 @@ public class WebServer {
           response += "  {\n";
           response += "    \"event\" : \"" + JSONObject.escape(e.getKey()) + "\",\n";
           response += "    \"days\" : " + e.getValue() + "\n";
-          response += "  }\n";
+          response += "  }";
           first = false;
         }
-        response += "])\n";
+        response += "],\n";
+        response += " \"stats\" : {\n";
+        first = true;
+        for (Entry<String, String> e : stats.entrySet()) {
+          if (!first) {
+            response += ",\n";
+          }
+          response += "  \"" + e.getKey() + "\" : \"" + JSONObject.escape(e.getValue()) + "\"";
+          first = false;
+        }
+        response += "\n }\n})\n";
       } catch (NumberFormatException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       } catch (NullPointerException e) {

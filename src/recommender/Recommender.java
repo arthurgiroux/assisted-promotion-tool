@@ -55,7 +55,10 @@ public class Recommender {
   private int facebookLikes;
   private int twitterFollowers;
   private int albumsCount;
-
+  
+  private Map<DBObject, Double> results = null;
+  private List<DBObject> similarResults = null;
+  
   public Recommender(String region, String[] categories, 
       int facebookLikes, int twitterFollowers, int albumsCount) {
     this.region = region;
@@ -75,7 +78,7 @@ public class Recommender {
 
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
-    Map<DBObject, Double> results = new HashMap<DBObject, Double>();
+    results = new HashMap<DBObject, Double>();
     
     while (cursor.hasNext()) {
       DBObject obj = cursor.next();
@@ -83,7 +86,7 @@ public class Recommender {
       results.put(obj, computeSimilarity(obj));
     }
     
-    List<DBObject> similarResults = getSimilarResults(results);
+    similarResults = getSimilarResults(results);
     
 
     for(DBObject matrixRow: similarResults){
@@ -107,6 +110,45 @@ public class Recommender {
     }
     
     return sortByValue(finalResult);
+  }
+  
+  public Map<String, String> getStats() {
+    if (results == null || similarResults == null) {
+      recommend();
+    }
+    
+    Entry<DBObject, Double> bestMatch = null;
+    double simSum = 0;
+    double count = 0;
+    
+    for (Entry<DBObject, Double> r : results.entrySet()) {
+      if (bestMatch == null || bestMatch.getValue() < r.getValue()) {
+        bestMatch = r;
+      }
+      simSum += r.getValue();
+      count++;
+    }
+    
+    HashMap<String, String> stats = new HashMap<String, String>();
+    
+    stats.put("average_sim_overall", (simSum / count)+"");
+    
+    String bestMatchArtistName = (String) bestMatch.getKey().get("artistName");
+    
+    stats.put("best_match", bestMatchArtistName);
+    
+    simSum = 0;
+    count = 0;
+    for (DBObject o : similarResults) {
+      Double sim = results.get(o);
+      simSum += (sim == null) ? 0 : sim;
+      count++;
+    }
+    
+    stats.put("artists_count", count+"");
+    stats.put("average_sim", (simSum / count)+"");
+    
+    return stats;
   }
   
   private List<DBObject> getSimilarResults(Map<DBObject, Double> map) {
@@ -178,7 +220,7 @@ public class Recommender {
 
     Collections.sort(sortedEntries, new Comparator<Entry<String, Double>>() {
       public int compare(Entry<String, Double> o1, Entry<String, Double> o2) {
-        return o1.getValue().compareTo(o2.getValue());
+        return o2.getValue().compareTo(o1.getValue());
       }
     });
 
