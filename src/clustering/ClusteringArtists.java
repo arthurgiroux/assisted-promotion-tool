@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package Clustering;
+package clustering;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -30,8 +30,8 @@ import org.bson.types.ObjectId;
  */
 public class ClusteringArtists {
     
-    static ArrayList<ArrayList<Artist>> clusters = new ArrayList<>();
-    static ArrayList<ArrayList<Integer>> clusters_int = new ArrayList<>();
+    static ArrayList<ArrayList<Artist>> clusters = new ArrayList<ArrayList<Artist>>();
+    static ArrayList<ArrayList<Integer>> clusters_int = new ArrayList<ArrayList<Integer>>();
     
     public static class Artist implements Comparable<Artist>{
         int facebook_followers;
@@ -59,13 +59,13 @@ public class ClusteringArtists {
     
     public static void main(String[] args) throws UnknownHostException {
         
-        ArrayList<Artist> artArr = new ArrayList<>();
+        ArrayList<Artist> artArr = new ArrayList<Artist>();
         
         DBHelper dbHelper = DBHelper.getInstance();
         DBCursor artists = dbHelper.findAllArtistsWithFB();
         while(artists.hasNext()){
             DBObject currentArtist = artists.next();
-            artArr.add(new Artist((ObjectId)currentArtist.get("_id"), (int)currentArtist.get("facebook_likes")));                        
+            artArr.add(new Artist((ObjectId)currentArtist.get("_id"), (Integer) currentArtist.get("facebook_likes")));                        
         }                
         
         Collections.sort(artArr);
@@ -98,7 +98,7 @@ public class ClusteringArtists {
     }
     static void parse(ArrayList<Artist> arr, double n){
         //current cluster
-        ArrayList<Artist> current = new ArrayList<>();
+        ArrayList<Artist> current = new ArrayList<Artist>();
         for(Artist i : arr){
             if(current.size()<=1){
                 current.add(i);
@@ -122,7 +122,7 @@ public class ClusteringArtists {
             if(Math.abs(m - i.facebook_followers) > n * sd){
                 //System.out.println(Math.abs(m - i.facebook_followers) - n * sd);
                 clusters.add(current);
-                current = new ArrayList<>();
+                current = new ArrayList<Artist>();
             }
             current.add(i);
         }

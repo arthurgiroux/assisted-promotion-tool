@@ -107,7 +107,7 @@ public class Recommender {
       }
     }
     
-    return sortByValue(finalResult);
+    return sortByValue(finalResult, false);
   }
   
   public Map<String, String> getStats() {
@@ -210,17 +210,20 @@ public class Recommender {
   }
 
 
-  private static Map<String, Double> sortByValue(Map<String, Double> map) {
-    List<Entry<String, Double>> sortedEntries = new LinkedList<Entry<String, Double>>(map.entrySet());
+  private static <A, B extends Comparable<B>> Map<A, B> sortByValue(Map<A, B> map, final boolean ascending) {
+    List<Entry<A, B>> sortedEntries = new LinkedList<Entry<A, B>>(map.entrySet());
 
-    Collections.sort(sortedEntries, new Comparator<Entry<String, Double>>() {
-      public int compare(Entry<String, Double> o1, Entry<String, Double> o2) {
-        return o2.getValue().compareTo(o1.getValue());
+    Collections.sort(sortedEntries, new Comparator<Entry<A, B>>() {
+      public int compare(Entry<A, B> o1, Entry<A, B> o2) {
+        if (ascending)
+          return o1.getValue().compareTo(o2.getValue());
+        else
+          return o2.getValue().compareTo(o1.getValue());
       }
     });
 
-    Map<String, Double> result = new LinkedHashMap<String, Double>();
-    for (Entry<String, Double> entry : sortedEntries) {
+    Map<A, B> result = new LinkedHashMap<A, B>();
+    for (Entry<A, B> entry : sortedEntries) {
       result.put(entry.getKey(), entry.getValue());
     }
     return result;

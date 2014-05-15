@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package Clustering;
+package clustering;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -31,7 +31,7 @@ import org.bson.types.ObjectId;
  */
 public class ClusteringArtistsTW {
     
-    static ArrayList<ArrayList<ArtistTW>> clusters_tw = new ArrayList<>();    
+    static ArrayList<ArrayList<ArtistTW>> clusters_tw = new ArrayList<ArrayList<ArtistTW>>();    
     
     public static class ArtistTW implements Comparable<ArtistTW>{
         int twitter_followers;        
@@ -61,7 +61,7 @@ public class ClusteringArtistsTW {
         
         new Integer (5).doubleValue();
         
-        ArrayList<ArtistTW> artArr = new ArrayList<>();
+        ArrayList<ArtistTW> artArr = new ArrayList<ArtistTW>();
         
         DBHelper dbHelper = DBHelper.getInstance();
         DBCursor artists = dbHelper.findAllArtistsWithTW();
@@ -106,7 +106,7 @@ public class ClusteringArtistsTW {
     }
     static void parse(ArrayList<ArtistTW> arr, double n){
         //current cluster
-        ArrayList<ArtistTW> current = new ArrayList<>();
+        ArrayList<ArtistTW> current = new ArrayList<ArtistTW>();
         for(ArtistTW i : arr){
             if(current.size()<=1){
                 current.add(i);
@@ -129,7 +129,7 @@ public class ClusteringArtistsTW {
             if(Math.abs(m - i.twitter_followers) > n * sd){
                 //System.out.println(Math.abs(m - i.twitter_followers) - n * sd);
                 clusters_tw.add(current);
-                current = new ArrayList<>();
+                current = new ArrayList<ArtistTW>();
             }
             current.add(i);
         }
