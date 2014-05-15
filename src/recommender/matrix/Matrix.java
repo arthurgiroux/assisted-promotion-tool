@@ -27,7 +27,9 @@ public class Matrix {
         
         ObjectId albumId = (ObjectId) item.get("_id");
         String albumName = (String) item.get("name");
+        
         //System.out.println(albumName);
+        
         Date albumReleaseDate = (Date) item.get("release_date");
         BasicDBList albumGenres = (BasicDBList) item.get("genre");
         
@@ -43,9 +45,10 @@ public class Matrix {
         int artistFBLikes = (Integer) ((artist.get("facebook_likes") == null) ? 0 : artist.get("facebook_likes"));
         
         
-        
+        //System.out.println(artistName + " " + artist.get("twitter_followers"));
         //artist.get("album_count"); ???
-        Integer twitterFollowers = (Integer) ((artist.get("twitter_followers") == null) ? 0 : artist.get("twitter_followers"));
+        
+        int twitterFollowers = ((artist.get("twitter_followers") == null) ? 0 : ((Number) artist.get("twitter_followers")).intValue());
         
         db.insertMatrixRow(
             albumId,
