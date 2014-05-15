@@ -37,7 +37,7 @@ import common.Event.TYPE;
 public class Recommender {
 
   private final static float THRESHOLD = 0.75f;
-  private final static int MIN_RESULTS_NB = 10;
+  private final static int MIN_RESULTS_NB = 5;
 
   private final static float FACEBOOK_LIKES_WEIGHT = 0.2f;
   private final static float TWITTER_FOLLOWERS_WEIGHT = 0.2f;
@@ -80,21 +80,24 @@ public class Recommender {
     
     while (cursor.hasNext()) {
       DBObject obj = cursor.next();
-
+      
       results.put(obj, computeSimilarity(obj));
     }
     
     similarResults = getSimilarResults(results);
     
+    String[] sources = {"twitter", "facebook"};
 
     for(DBObject matrixRow: similarResults){
       for (int i = 0; i < Event.NAMES.length; i++) {
-        boolean hasAttribute = (Boolean) matrixRow.get("has_" + Event.NAMES[i]);
-        if (hasAttribute) {
-          long attributeValue = (Long) matrixRow.get("days_" + Event.NAMES[i]);
-
-          counters[i]++;
-          sums[i] += attributeValue;
+        for (String source : sources) {
+          boolean hasAttribute = (matrixRow.get("days_" + source + "_" + Event.NAMES[i]) != null);
+          if (hasAttribute) {
+            int attributeValue = (Integer) matrixRow.get("days_" + source + "_" + Event.NAMES[i]);
+  
+            counters[i]++;
+            sums[i] += attributeValue;
+          }
         }
       }
     }
@@ -195,13 +198,13 @@ public class Recommender {
   public double computeSimilarity(DBObject obj) {
     
     int sameRegion = region.equals((String) obj.get(REGION)) ? 1 : 0;
-
+    
     int sameCategories = (isOfsameCategory(obj) ? 1 : 0);
     
     double cossimFb = computeSim(facebookLikes, (Integer) (obj.get(FACEBOOKLIKES)));
     double cossimTw = computeSim(twitterFollowers, (Integer) (obj.get(TWITTERFOLLOWERS)));
     double cossimAlbums = computeSim(albumsCount, (Integer) (obj.get(NUMBEROFALBUMS)));
-
+    
     return (FACEBOOK_LIKES_WEIGHT * cossimFb
         + TWITTER_FOLLOWERS_WEIGHT * cossimTw
         + ALBUMS_COUNT_WEIGHT * cossimAlbums
