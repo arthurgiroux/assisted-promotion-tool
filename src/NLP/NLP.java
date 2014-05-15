@@ -89,10 +89,20 @@ public class NLP {
     BasicDBObject query = new BasicDBObject("artist_id", artist_id).append("date", new BasicDBObject("$gt", date).append("$lte", release_date));
     DBCursor cursor = dbHelper.findTweetsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
     
+    Event firstTweet = null;
+    
     // Twitter
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
+      
       String message = (String) item.get("message");
+      Date tweetDate = (Date) item.get("date");
+      
+      // Find first tweet
+      if (firstTweet == null || firstTweet.getDate().after(tweetDate)) {
+        firstTweet = new Event(TYPE.FIRST_TWEET, tweetDate);
+      }
+      
       int stemsFound = 0;
       for (String stem : STEMS) {
         if (message.contains(stem)) {
@@ -128,7 +138,7 @@ public class NLP {
             TYPE type = getTypeFromMessage(words, words_str);
             if (type != null) {
               if (!eventsTwitterFound.containsKey(type)) {
-                eventsTwitterFound.put(type, new Event(type, (Date) item.get("date")));
+                eventsTwitterFound.put(type, new Event(type, tweetDate));
               }
               break;
             }
@@ -136,13 +146,26 @@ public class NLP {
         }
       }
     }
+    
+    if (firstTweet != null) {
+      eventsTwitterFound.put(TYPE.FIRST_TWEET, firstTweet);
+    }
 
     // Facebook:
     cursor = dbHelper.findFBPostsByArtistId(query).addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+    
+    Event firstFBPost = null;
 
     while (cursor.hasNext()) {
       DBObject item = cursor.next();
       String message = (String) item.get("message");
+      Date fbPostDate = (Date) item.get("date");
+      
+      // Find first fb post
+      if (firstFBPost == null || firstFBPost.getDate().after(fbPostDate)) {
+        firstFBPost = new Event(TYPE.FIRST_FB, fbPostDate);
+      }
+      
       System.out.println(message);
       if (message == null) {
         continue;
@@ -171,38 +194,10 @@ public class NLP {
          
           // We check for possessive rules
           if (keepMessage(tSentence)) {
-
             TYPE type = getTypeFromMessage(words, words_str);
             if (type != null) {
               if (!eventsFacebookFound.containsKey(type)) {
-                // Sentiment analysis on responses :
-                
-                /*
-                System.out.println("sentiment analysis");
-                float score = 0;
-                int count = 0;
-                
-                ArrayList<DBObject> replies = (ArrayList<DBObject>) item.get("comments");
-                for (DBObject reply : replies) {
-                  String commentsMessage = (String) reply.get("message");
-                  System.out.println("Comments " + commentsMessage);
-                  int sentiment = findSentimentForMessage(commentsMessage);
-                  if (sentiment != 0) {
-                    score += sentiment;
-                    count++;
-                  }
-                }
-                
-                if (count == 0) {
-                  score = 0;
-                }
-                else {
-                  score /= count;
-                }
-                System.out.println("found score " + score);
-                */
-                eventsFacebookFound.put(type, new Event(type, (Date) item.get("date"), (ObjectId) item.get("_id")));
-                return;
+                eventsFacebookFound.put(type, new Event(type, fbPostDate, (ObjectId) item.get("_id")));
               }
               break;
             }
@@ -210,27 +205,25 @@ public class NLP {
         }
       }
     }
-   
     
+    if (firstFBPost != null) {
+      eventsFacebookFound.put(TYPE.FIRST_FB, firstFBPost);
+    }
     
     System.out.println("events for :" + artist_name + " " + album_name);
     for (TYPE everyType : Event.TYPE.values()) {
-      matrix_row.put("has_twitter_" + everyType.name().toLowerCase(), eventsTwitterFound.containsKey(everyType));
-      
       if (eventsTwitterFound.containsKey(everyType)) {
-        long days = (release_date.getTime() - eventsTwitterFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
+        Event event = eventsFacebookFound.get(everyType);
+        int days = (int) ((release_date.getTime() - event.getDate().getTime()) / MILLISECS_PER_DAY); 
         matrix_row.put("days_twitter_" + everyType.name().toLowerCase(), days);
       }
       
-      matrix_row.put("has_facebook_" + everyType.name().toLowerCase(), eventsFacebookFound.containsKey(everyType));
-      
       if (eventsFacebookFound.containsKey(everyType)) {
-        long days = (release_date.getTime() - eventsFacebookFound.get(everyType).getDate().getTime()) / MILLISECS_PER_DAY; 
-        Event ev = eventsFacebookFound.get(everyType);
+        Event event = eventsFacebookFound.get(everyType);
+        int days = (int) ((release_date.getTime() - event.getDate().getTime()) / MILLISECS_PER_DAY); 
         matrix_row.put("days_facebook_" + everyType.name().toLowerCase(), days);
-        matrix_row.put("post_id_facebook_" + everyType.name().toLowerCase(), ev.getPostId());
+        matrix_row.put("post_id_facebook_" + everyType.name().toLowerCase(), event.getPostId());
       }
-
     }
     System.out.println("found : " + (eventsTwitterFound.size() + eventsFacebookFound.size())  + " events");
     dbHelper.updateMatrixRow(matrix_row);
@@ -272,44 +265,6 @@ public class NLP {
     
     return type;
   }
-  
-
-  private int findSentimentForMessage(String message) {
-
-    Properties props = new Properties();
-    props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
-    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-    int mainSentiment = 0;
-    if (message != null && message.length() > 0) {
-      int longest = 0;
-      Annotation annotation = pipeline.process(message);
-      for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-        Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-        int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
-        String partText = sentence.toString();
-        if (partText.length() > longest) {
-          mainSentiment = sentiment;
-          longest = partText.length();
-        }
-
-      }
-    }
-    // 0 = negative
-    // 2 = neutral
-    // 4 = positive
-    
-    // Remap neutral = 0, negative = -1, positive = 1
-    if (mainSentiment == 4) {
-      return 1;
-    }
-    else if (mainSentiment == 0) {
-      return -1;
-    }
-    else {
-      return 0;
-    }
-  }
-  
   
   // return if the list of words contains at least one of the given stems
   private boolean oneContains(ArrayList<String> words, String[] stems) {
