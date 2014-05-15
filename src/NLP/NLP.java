@@ -161,12 +161,12 @@ public class NLP {
       String message = (String) item.get("message");
       Date fbPostDate = (Date) item.get("date");
       
+      
       // Find first fb post
       if (firstFBPost == null || firstFBPost.getDate().after(fbPostDate)) {
         firstFBPost = new Event(TYPE.FIRST_FB, fbPostDate);
       }
       
-      System.out.println(message);
       if (message == null) {
         continue;
       }
@@ -213,7 +213,7 @@ public class NLP {
     System.out.println("events for :" + artist_name + " " + album_name);
     for (TYPE everyType : Event.TYPE.values()) {
       if (eventsTwitterFound.containsKey(everyType)) {
-        Event event = eventsFacebookFound.get(everyType);
+        Event event = eventsTwitterFound.get(everyType);
         int days = (int) ((release_date.getTime() - event.getDate().getTime()) / MILLISECS_PER_DAY); 
         matrix_row.put("days_twitter_" + everyType.name().toLowerCase(), days);
       }
