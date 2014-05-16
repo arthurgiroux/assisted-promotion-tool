@@ -212,6 +212,11 @@ public class DBHelper {
         //db.artistsCollection.find({twitter_followers:{$exists:true}})
         return artistsCollection.find(new BasicDBObject("twitter_followers", new BasicDBObject("$exists", true)));
     }
+	
+	public DBCursor findArtistsWithFBandTW(){
+        //db.artistsCollection.find({twitter_followers:{$exists:true}, facebook_likes:{$exists:true}})
+        return artistsCollection.find(new BasicDBObject("facebook_likes", new BasicDBObject("$exists", true)).append("twitter_followers", new BasicDBObject("$exists", true)));
+    }
 
     public DBCursor findAllAlbums() {
         return albumsCollection.find();
