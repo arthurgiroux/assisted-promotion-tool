@@ -31,6 +31,7 @@ public class DBHelper {
     private static final String TWEETSCOLLECTION = "tweetsNLPBackup";
 
     private static final String MATRIXCOLLECTION = "matrixSandbox";
+    private static final String CLUSTER_CENTERS_COLLECTION = "clusterCentersCollection";
 
     public static String REGION = "artistRegion";
     public static String CATEGORY = "category";
@@ -45,6 +46,7 @@ public class DBHelper {
     private DBCollection tweetsCollection;
 
     private DBCollection matrixCollection;
+    private DBCollection clusterCentersCollection;
 
     public final static DBHelper getInstance() {
 
@@ -77,7 +79,7 @@ public class DBHelper {
             tweetsCollection = db.getCollection(TWEETSCOLLECTION);
 
             matrixCollection = db.getCollection(MATRIXCOLLECTION);
-
+            clusterCentersCollection = db.getCollection(CLUSTER_CENTERS_COLLECTION);
         } catch (UnknownHostException e) {
             System.out.println("Something went wrong while connecting to the database");
             System.exit(1);
@@ -96,6 +98,32 @@ public class DBHelper {
 
         // return the id of the insertion
         return (ObjectId) newArtist.get("_id");
+    }
+    
+    public void emptyClusterCenters() {
+      clusterCentersCollection.remove(new BasicDBObject());
+    }
+    
+    public int countClusterCenters() {
+      return (int) clusterCentersCollection.count();
+    }
+    
+    public DBCursor findClusterCenters() {
+      return clusterCentersCollection.find();
+    }
+    
+    public ObjectId insertClusterCenter(double fbLikes, double twitterFolowers, double albumCount) {
+      BasicDBObject newClusterCenter = new BasicDBObject("fbLikes", fbLikes).
+          append("twitterFollowers", twitterFolowers).
+          append("albumCount", albumCount);
+      clusterCentersCollection.insert(newClusterCenter);
+      
+      return (ObjectId) newClusterCenter.get("_id");
+    }
+    
+    public void updateMatrixRowCluster(DBObject row, ObjectId center) {
+      row.put("cluster_center", center);
+      matrixCollection.save(row);
     }
 
     public void insertMatrixRow(
@@ -215,7 +243,7 @@ public class DBHelper {
 	
 	public DBCursor findArtistsWithFBandTW(){
         //db.artistsCollection.find({twitter_followers:{$exists:true}, facebook_likes:{$exists:true}})
-        return artistsCollection.find(new BasicDBObject("facebook_likes", new BasicDBObject("$exists", true)).append("twitter_followers", new BasicDBObject("$exists", true)));
+        return matrixCollection.find(new BasicDBObject("facebook_likes", new BasicDBObject("$exists", true)).append("twitter_followers", new BasicDBObject("$exists", true)));
     }
 
     public DBCursor findAllAlbums() {

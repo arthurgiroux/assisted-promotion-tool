@@ -79,7 +79,7 @@ public class WebServer {
           }
           response += "  {\n";
           response += "    \"event\" : \"" + JSONObject.escape(e.getKey()) + "\",\n";
-          response += "    \"days\" : " + e.getValue() + "\n";
+          response += "    \"days\" : " + Math.round(e.getValue()) + "\n";
           response += "  }";
           first = false;
         }
@@ -99,11 +99,15 @@ public class WebServer {
       } catch (NullPointerException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       }
+      
       Headers header = t.getResponseHeaders();
       header.add("Content-Type", "application/javascript");
-      t.sendResponseHeaders(200, response.length());
+      
+      byte[] toSend = response.getBytes();
+      
+      t.sendResponseHeaders(200, toSend.length);
       OutputStream os = t.getResponseBody();
-      os.write(response.getBytes());
+      os.write(toSend);
       os.close();
     }
   }

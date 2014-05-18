@@ -39,11 +39,15 @@ public class Recommender {
   private final static float THRESHOLD = 0.75f;
   private final static int MIN_RESULTS_NB = 5;
 
-  private final static float FACEBOOK_LIKES_WEIGHT = 0.2f;
+  /*private final static float FACEBOOK_LIKES_WEIGHT = 0.2f;
   private final static float TWITTER_FOLLOWERS_WEIGHT = 0.2f;
-  private final static float ALBUMS_COUNT_WEIGHT = 0.2f;
-  private final static float REGION_WEIGHT = 0.2f;
-  private final static float CATEGORY_WEIGHT = 0.2f;
+  private final static float ALBUMS_COUNT_WEIGHT = 0.2f;*/
+  private final static float CLUSTER_WEIGHT = 0.2f;
+  private final static float REGION_WEIGHT = 0.4f;
+  private final static float CATEGORY_WEIGHT = 0.4f;
+  
+  private DBHelper db;
+  private DBObject closestClusterCenter;
 
   private int[] counters = new int[TYPE.values().length];
   private int[] sums = new int[TYPE.values().length];
@@ -64,15 +68,39 @@ public class Recommender {
     this.facebookLikes = facebookLikes;
     this.twitterFollowers = twitterFollowers;
     this.albumsCount = albumsCount;
+    
+    db = DBHelper.getInstance();
+    
+    findClosestCluster();
+  }
+  
+  private void findClosestCluster() {
+    DBCursor clusterCursor = db.findClusterCenters();
+    
+    double minDist = -1;
+    closestClusterCenter = null;
+    
+    while (clusterCursor.hasNext()) {
+      DBObject current = clusterCursor.next();
+      
+      double fl = (Double) current.get("fbLikes");
+      double tf = (Double) current.get("twitterFollowers");
+      double ac = (Double) current.get("albumCount");
+      
+      double dist = euclideanDistance(fl, tf, ac);
+      
+      if (closestClusterCenter == null || dist < minDist) {
+        minDist = dist;
+        closestClusterCenter = current;
+      }
+    }
   }
 
   public Map<String, Double> recommend() {
-    if (FACEBOOK_LIKES_WEIGHT + TWITTER_FOLLOWERS_WEIGHT + ALBUMS_COUNT_WEIGHT + REGION_WEIGHT + CATEGORY_WEIGHT > 1) {
+    if (CLUSTER_WEIGHT + REGION_WEIGHT + CATEGORY_WEIGHT > 1) {
       System.out.println("Check the weights");
       System.exit(0);
     }
-
-    DBHelper db = DBHelper.getInstance();
 
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
@@ -191,8 +219,18 @@ public class Recommender {
     return false;
   }
 
-  private double computeSim(int n1, int n2) {
+  /*private double computeSim(int n1, int n2) {
     return (n1 == n2) ? 1 : 1 - ((double) Math.abs(n1 - n2)) / Math.max(n1, n2);
+  }*/
+  
+  private double euclideanDistance(double fl, double tf, double ac) {
+    return Math.sqrt((this.facebookLikes - fl) * (this.facebookLikes - fl)
+         + (this.twitterFollowers - tf) * (this.twitterFollowers - tf)
+         + (this.albumsCount - ac) * (this.albumsCount - ac));
+  }
+  
+  private boolean isInSameCluster(DBObject obj) {
+    return closestClusterCenter.get("_id").equals(obj.get("cluster_center"));
   }
 
   public double computeSimilarity(DBObject obj) {
@@ -201,13 +239,17 @@ public class Recommender {
     
     int sameCategories = (isOfsameCategory(obj) ? 1 : 0);
     
-    double cossimFb = computeSim(facebookLikes, (Integer) (obj.get(FACEBOOKLIKES)));
+    /*double cossimFb = computeSim(facebookLikes, (Integer) (obj.get(FACEBOOKLIKES)));
     double cossimTw = computeSim(twitterFollowers, (Integer) (obj.get(TWITTERFOLLOWERS)));
     double cossimAlbums = computeSim(albumsCount, (Integer) (obj.get(NUMBEROFALBUMS)));
+    */
     
-    return (FACEBOOK_LIKES_WEIGHT * cossimFb
+    int sameCluster = (isInSameCluster(obj) ? 1 : 0);
+    
+    return (CLUSTER_WEIGHT * sameCluster
+        /*FACEBOOK_LIKES_WEIGHT * cossimFb
         + TWITTER_FOLLOWERS_WEIGHT * cossimTw
-        + ALBUMS_COUNT_WEIGHT * cossimAlbums
+        + ALBUMS_COUNT_WEIGHT * cossimAlbums*/
         + REGION_WEIGHT * sameRegion
         + CATEGORY_WEIGHT * sameCategories);
   }

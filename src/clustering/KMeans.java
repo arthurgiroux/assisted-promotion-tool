@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package Clustering;
+package clustering;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -16,7 +16,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
+
 import common.DBHelper;
+
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.Clusterable;
@@ -36,17 +39,24 @@ import org.bson.types.ObjectId;
  * @author Amine
  */
 public class KMeans {
-    public static class Artist implements Clusterable{
-        int fb_likes;
-        int twitter_followers;
-        int album_count;
-        ObjectId id;
+    public static class Artist implements Clusterable {
+        private int fb_likes;
+        private int twitter_followers;
+        private int album_count;
+        private DBObject object;
 
-        public Artist(ObjectId oid, int fb, int tw, int ac){
+        private Artist(DBObject o, int fb, int tw, int ac){
             fb_likes = fb;
             twitter_followers = tw;
             album_count = ac;
-            id = oid;
+            object = o;
+        }
+        
+        public static Artist fromDBObject(DBObject o) {
+          int twfint = ((Number) o.get("twitter_followers")).intValue();
+          int fbf = ((Number) o.get("facebook_likes")).intValue();
+          int ac = ((Number) o.get("album_count")).intValue();
+          return new Artist(o, fbf,twfint,ac);
         }
         
         @Override
@@ -54,35 +64,40 @@ public class KMeans {
             double[] point = {fb_likes, twitter_followers, album_count};
             return point;
         }
+        
+        public DBObject getDBObject() {
+          return object;
+        }
     }
     
     public static void main(String[] args) throws UnknownHostException {
         
         int kClusters = 20;
         
-        ArrayList<Artist> artists = new ArrayList<>();
+        ArrayList<Artist> artists = new ArrayList<Artist>();
         DBHelper dbHelper = DBHelper.getInstance();
         DBCursor result = dbHelper.findArtistsWithFBandTW();
+        
         while(result.hasNext()){
             DBObject currentArtist = result.next();
-            String twf = currentArtist.get("twitter_followers").toString();
-            StringTokenizer st = new StringTokenizer(twf, ".");
-            int twfint = Integer.parseInt(st.nextToken());
-            int fbf = (int)currentArtist.get("facebook_likes");
-            int ac = (int)currentArtist.get("album_count");
-            ObjectId oid = (ObjectId)currentArtist.get("_id");
-            artists.add(new Artist(oid, fbf,twfint,ac));
+            artists.add(Artist.fromDBObject(currentArtist));
         }
+        
         //System.out.println(artists.size());
-        KMeansPlusPlusClusterer<Artist> clusterer = new KMeansPlusPlusClusterer<>(kClusters);
+        KMeansPlusPlusClusterer<Artist> clusterer = new KMeansPlusPlusClusterer<Artist>(kClusters);
         List<CentroidCluster<Artist>> clusters = clusterer.cluster(artists);
         //System.out.println(clusters.size());
+        dbHelper.emptyClusterCenters();
+        
         for(CentroidCluster<Artist> cluster : clusters){
+            double[] center = cluster.getCenter().getPoint();
+            ObjectId centerId = dbHelper.insertClusterCenter(center[0], center[1], center[2]);
+            
             List<Artist> artC = cluster.getPoints();
             for(Artist artist : artC){
-                System.out.print("("+artist.fb_likes+","+artist.twitter_followers+","+artist.album_count+") ");
+                dbHelper.updateMatrixRowCluster(artist.getDBObject(), centerId);
+                //System.out.print("("+artist.fb_likes+","+artist.twitter_followers+","+artist.album_count+") ");
             }
-            System.out.println();
         }
     }
 }
