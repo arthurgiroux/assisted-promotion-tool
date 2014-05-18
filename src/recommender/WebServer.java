@@ -18,8 +18,27 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class WebServer {
-
+  
   public static void main(String[] args) throws Exception {
+    if (args.length != 5) {
+      System.out.println("Usage : WebServer <cluster weight> <region weight> <category weight> <threshold> <min_result_nb>");
+      System.exit(-1);
+    }
+    
+    Recommender.CLUSTER_WEIGHT = Float.parseFloat(args[0]);
+    Recommender.REGION_WEIGHT = Float.parseFloat(args[1]);
+    Recommender.CATEGORY_WEIGHT = Float.parseFloat(args[2]);
+    
+    Recommender.THRESHOLD = Float.parseFloat(args[3]);
+    Recommender.MIN_RESULTS_NB = Integer.parseInt(args[4]);
+    
+    if (Recommender.CLUSTER_WEIGHT 
+        + Recommender.REGION_WEIGHT 
+        + Recommender.CATEGORY_WEIGHT > 1) {
+      System.out.println("Check weights !");
+      System.exit(-1);
+    }
+    
     HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
     server.createContext("/recommend", new MyHandler());
     server.setExecutor(null); // creates a default executor

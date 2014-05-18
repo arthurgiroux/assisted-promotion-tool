@@ -36,15 +36,12 @@ import common.Event.TYPE;
  */
 public class Recommender {
 
-  private final static float THRESHOLD = 0.75f;
-  private final static int MIN_RESULTS_NB = 5;
-
-  /*private final static float FACEBOOK_LIKES_WEIGHT = 0.2f;
-  private final static float TWITTER_FOLLOWERS_WEIGHT = 0.2f;
-  private final static float ALBUMS_COUNT_WEIGHT = 0.2f;*/
-  private final static float CLUSTER_WEIGHT = 0.2f;
-  private final static float REGION_WEIGHT = 0.4f;
-  private final static float CATEGORY_WEIGHT = 0.4f;
+  public static float CLUSTER_WEIGHT;
+  public static float REGION_WEIGHT;
+  public static float CATEGORY_WEIGHT;
+  
+  public static float THRESHOLD;
+  public static int MIN_RESULTS_NB;
   
   private DBHelper db;
   private DBObject closestClusterCenter;
@@ -97,11 +94,6 @@ public class Recommender {
   }
 
   public Map<String, Double> recommend() {
-    if (CLUSTER_WEIGHT + REGION_WEIGHT + CATEGORY_WEIGHT > 1) {
-      System.out.println("Check the weights");
-      System.exit(0);
-    }
-
     DBCursor cursor = db.findMatrixRows().addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
     results = new HashMap<DBObject, Double>();
@@ -224,10 +216,6 @@ public class Recommender {
     return false;
   }
 
-  /*private double computeSim(int n1, int n2) {
-    return (n1 == n2) ? 1 : 1 - ((double) Math.abs(n1 - n2)) / Math.max(n1, n2);
-  }*/
-  
   private double euclideanDistance(double fl, double tf, double ac) {
     return Math.sqrt((this.facebookLikes - fl) * (this.facebookLikes - fl)
          + (this.twitterFollowers - tf) * (this.twitterFollowers - tf)
@@ -244,17 +232,9 @@ public class Recommender {
     
     int sameCategories = (isOfsameCategory(obj) ? 1 : 0);
     
-    /*double cossimFb = computeSim(facebookLikes, (Integer) (obj.get(FACEBOOKLIKES)));
-    double cossimTw = computeSim(twitterFollowers, (Integer) (obj.get(TWITTERFOLLOWERS)));
-    double cossimAlbums = computeSim(albumsCount, (Integer) (obj.get(NUMBEROFALBUMS)));
-    */
-    
     int sameCluster = (isInSameCluster(obj) ? 1 : 0);
     
     return (CLUSTER_WEIGHT * sameCluster
-        /*FACEBOOK_LIKES_WEIGHT * cossimFb
-        + TWITTER_FOLLOWERS_WEIGHT * cossimTw
-        + ALBUMS_COUNT_WEIGHT * cossimAlbums*/
         + REGION_WEIGHT * sameRegion
         + CATEGORY_WEIGHT * sameCategories);
   }
