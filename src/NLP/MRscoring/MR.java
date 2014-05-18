@@ -40,34 +40,33 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.bson.types.ObjectId;
 
-/**
- * Hello world!
- *
- */
 public class MR {
 
-    public static class Map extends MapReduceBase implements Mapper<Text, Text, Text, IntWritable> {
+    public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, DoubleWritable> {
 
-        private final static IntWritable one = new IntWritable(1);
         
         private static final String[] positive = new String[] {":-D", "=D", "xD", "<3", "(L)", "^^", "x)", ":-)" ,":)" ,":o)" ,":]" ,":3" ,":c)" ,":D" ,"C:", "=)"};
         private static final String[] negative = new String[] {"D8" ,"D;", "D=", "DX", "v.v", ":'(" , "='(" , ":\\", "x(", ":-(", "=("  ,":(" ,":c",":[" , "</3","- -", "-.-", "(> <)", ":|"};
 
-        public void map(Text key, Text comment, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+        public void map(LongWritable key, Text comment, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
             String line = comment.toString();
+            Properties props = new Properties();
+            props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+            StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+            
             StringTokenizer tokenizer = new StringTokenizer(line, "#|#");
+            Text realKey = new Text(tokenizer.nextToken());
+            System.out.println("TREATING new : " + realKey);
             while (tokenizer.hasMoreTokens()) {
-                IntWritable commentScore = evaluateComment(new Text(tokenizer.nextToken()));
-                output.collect(key, commentScore);
+                DoubleWritable commentScore = evaluateComment(new Text(tokenizer.nextToken()), pipeline);
+                output.collect(realKey, commentScore);
             }
 
         }
 
-        private IntWritable evaluateComment(Text comment) {
+        private DoubleWritable evaluateComment(Text comment, StanfordCoreNLP pipeline) {
           String message = comment.toString();
-          Properties props = new Properties();
-          props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
-          StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+          System.out.println("phrase is " + message);
           int mainSentiment = 0;
           if (message != null && message.length() > 0) {
             int longest = 0;
@@ -108,22 +107,22 @@ public class MR {
           // 2 = neutral
           // 4 = positive
           
-          // Remap neutral = 0, negative = -1, positive = 1
+          // Remap negative = 0, neutral = 0.5, positive = 1
           if (mainSentiment == 4) {
-            return new IntWritable(1);
+            return new DoubleWritable(1);
           }
           else if (mainSentiment == 0) {
-            return new IntWritable(-1);
+            return new DoubleWritable(0);
           }
           else {
-            return new IntWritable(0);
+            return new DoubleWritable(0.5);
           }
         }
     }
 
-    public static class Reduce extends MapReduceBase implements Reducer<Text, IntWritable, Text, DoubleWritable> {
+    public static class Reduce extends MapReduceBase implements Reducer<Text, DoubleWritable, Text, DoubleWritable> {
 
-        public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
+        public void reduce(Text key, Iterator<DoubleWritable> values, OutputCollector<Text, DoubleWritable> output, Reporter reporter) throws IOException {
             int sum = 0;
             int count = 0;
             while (values.hasNext()) {
@@ -154,7 +153,7 @@ public class MR {
         jobconf1.setJobName("CommentsRatingJob");
 
         jobconf1.setOutputKeyClass(Text.class);
-        jobconf1.setOutputValueClass(IntWritable.class);
+        jobconf1.setOutputValueClass(DoubleWritable.class);
 
         jobconf1.setMapperClass(Map.class);
         jobconf1.setReducerClass(Reduce.class);
@@ -179,18 +178,30 @@ public class MR {
 
         String text = "";
         while (cursor.hasNext()) {
-          
+
           DBObject item = cursor.next();
             for (Event.TYPE everyType : Event.TYPE.values()) {
-                if ((Boolean) item.get("has_facebook_" + everyType.name())) {
-                  ObjectId Id = (ObjectId) item.get("post_id_facebook_" + everyType.name());
+                if (item.get("post_id_facebook_" + everyType.name().toLowerCase()) != null) {
+                  ObjectId Id = (ObjectId) item.get("post_id_facebook_" + everyType.name().toLowerCase());
+                  System.out.println("FOUND ONE, ID IS : " + Id);
                   DBObject post = db.findFBPostsById(Id);
+                  System.out.println("POST IS : " + post.get("comments"));
                   BasicDBList commentsList = (BasicDBList) post.get("comments");
+                  boolean first = true;
                   for (Object comment : commentsList) {
-                      text += "\r" + Id.toString() + "#|#" + (String) comment;
+                    if (first) {
+                      text += Id.toString() + "_" + everyType.name().toLowerCase();
+                      first = false;
+                    }
+                    String mess = (String) ((DBObject) comment).get("message");
+                    text += "#|#" + mess.replace("\n", ".");
+                  }
+                  if (!first) {
+                    text += "\n";
                   }
                 }
             }
+            
         }
 
         Configuration configuration = new Configuration();
