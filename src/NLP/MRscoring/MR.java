@@ -151,6 +151,8 @@ public class MR {
         //First job
         JobConf jobconf1 = new JobConf(MR.class);
         jobconf1.setJobName("CommentsRatingJob");
+        jobconf1.setNumMapTasks(40);
+        jobconf1.setNumReduceTasks(40);
 
         jobconf1.setOutputKeyClass(Text.class);
         jobconf1.setOutputValueClass(DoubleWritable.class);
