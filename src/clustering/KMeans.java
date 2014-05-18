@@ -71,8 +71,12 @@ public class KMeans {
     }
     
     public static void main(String[] args) throws UnknownHostException {
+        if (args.length != 1) {
+          System.out.println("Usage : KMeans <nrClusters>");
+          System.exit(-1);
+        }
         
-        int kClusters = 100;
+        int kClusters = Integer.parseInt(args[0]);
         
         ArrayList<Artist> artists = new ArrayList<Artist>();
         DBHelper dbHelper = DBHelper.getInstance();

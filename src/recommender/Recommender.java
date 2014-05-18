@@ -49,8 +49,8 @@ public class Recommender {
   private DBHelper db;
   private DBObject closestClusterCenter;
 
-  private int[] counters = new int[TYPE.values().length];
-  private int[] sums = new int[TYPE.values().length];
+  private double[] counters = new double[TYPE.values().length];
+  private double[] sums = new double[TYPE.values().length];
 
   private String region;
   private String[] categories;
@@ -122,9 +122,14 @@ public class Recommender {
           boolean hasAttribute = (matrixRow.get("days_" + source + "_" + Event.NAMES[i]) != null);
           if (hasAttribute) {
             int attributeValue = (Integer) matrixRow.get("days_" + source + "_" + Event.NAMES[i]);
-  
-            counters[i]++;
-            sums[i] += attributeValue;
+            
+            Double eventWeight = (Double) matrixRow.get("event_score_" + Event.NAMES[i]);
+            eventWeight = (eventWeight == null ? 0.5 : eventWeight);
+            
+            System.out.println(eventWeight);
+            
+            counters[i] += eventWeight;
+            sums[i] += eventWeight * attributeValue;
           }
         }
       }
