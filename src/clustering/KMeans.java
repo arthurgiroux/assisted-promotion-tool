@@ -72,7 +72,7 @@ public class KMeans {
     
     public static void main(String[] args) throws UnknownHostException {
         
-        int kClusters = 20;
+        int kClusters = 100;
         
         ArrayList<Artist> artists = new ArrayList<Artist>();
         DBHelper dbHelper = DBHelper.getInstance();
