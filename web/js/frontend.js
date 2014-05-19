@@ -165,6 +165,11 @@ $(document).ready(function () {
 			data: $(this).serialize(),
 			dataType: 'jsonp'
 		}).done(function (data) {
+			if (data.error) {
+				alert(data.error);
+				return;
+			}
+
 			$('#statsContent').empty();
 
 			var statsText = "This timeline was computed by aggregating the promotion timeline of " + data.stats.artists_count + " artists (avg. similarity : " + data.stats.average_sim + "). <br />";
@@ -175,14 +180,26 @@ $(document).ready(function () {
 			$('#timelineContent').empty();
 
 			// Constructs the timeline
+			var oldestDate = releaseDate;
 			for (var i in data.results) {
 				var obj = data.results[i];
 				var d = new Date(releaseDate);
 				d.setDate(d.getDate() - Math.round(obj.days));
+				
+				// Find oldest date
+				if (d < oldestDate) {
+					oldestDate = d;
+				}
+
 				$('#timelineContent').append(createTimelineElement({
 					event : obj.event,
 					date : d
 				}, i%2 == 1));
+			}
+			console.log(oldestDate, new Date(), oldestDate < new Date());
+			if (oldestDate < new Date()) {
+				var warning = $('<div class="alert alert-danger"><b>Warning</b> You should release your album later, some recommended events are in the past !</div>')
+				$('#statsContent').append(warning);
 			}
 
 			$('#timelineContent').append(createTimelineElement({

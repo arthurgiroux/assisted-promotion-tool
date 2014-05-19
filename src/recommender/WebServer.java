@@ -77,6 +77,8 @@ public class WebServer {
       try {
         String callback = get.get("callback");
         
+        response += callback + "(\n";
+        
         String region = get.get("region");
         String[] categories = get.get("categories").split(",");
         int facebookLikes = Integer.parseInt(get.get("fbLikes"));
@@ -89,7 +91,6 @@ public class WebServer {
         
         Map<String, String> stats = r.getStats();
         
-        response += callback + "(\n";
         response += "{\n \"results\" : [\n";
         boolean first = true;
         for (Entry<String, Double> e : result.entrySet()) {
@@ -112,12 +113,14 @@ public class WebServer {
           response += "  \"" + e.getKey() + "\" : \"" + JSONObject.escape(e.getValue()) + "\"";
           first = false;
         }
-        response += "\n }\n})\n";
+        response += "\n }\n}\n";
       } catch (NumberFormatException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       } catch (NullPointerException e) {
         response = "{ \"error\" : \"Malformed request\"}";
       }
+      
+      response += ")"; // Close callback function
       
       Headers header = t.getResponseHeaders();
       header.add("Content-Type", "application/javascript");
