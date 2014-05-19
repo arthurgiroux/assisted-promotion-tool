@@ -4,29 +4,29 @@ $(document).ready(function () {
 
 	var events = {
 		"days_countdown" : {
-			"title" : "Title days_countdown",
-			"text" : "Text days_countdown",
+			"title" : "Countdown",
+			"text" : "Countdown before your album release:<br />i.e: <b>Only 15 days before our new album ! Keep tuned !</b>",
 			"icon" : "time",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_video_clip" : {
-			"title" : "Title days_video_clip",
-			"text" : "Text days_video_clip",
+			"title" : "Video clip",
+			"text" : "Announce a new video clip and put it on Youtube",
 			"icon" : "facetime-video",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_press_campaign" : {
-			"title" : "Title days_press_campaign",
-			"text" : "Text days_press_campaign",
+			"title" : "Press campaign",
+			"text" : "Talk about your ongoing press campaign.<br />i.e: <b>Check us in this new press article in the Guardian.</b>",
 			"icon" : "comment",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_presale_campaign" : {
-			"title" : "Title days_presale_campaign",
-			"text" : "Text days_presale_campaign",
+			"title" : "Presale campaign",
+			"text" : "i.e: <b>Preorder our new album now for only 10.- !</b>",
 			"icon" : "calendar",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
