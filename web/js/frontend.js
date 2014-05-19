@@ -40,7 +40,7 @@ $(document).ready(function () {
 		},
 		"days_single_release" : {
 			"title" : "Release of a single",
-			"text" : "<blockquote><p>We released the single &lquote; Big Data &rquote; of the album &lquote; Pretty big things &rquote; Check it out !</p></blockquote>",
+			"text" : "<blockquote><p>We released the single &laquo; Big Data &raquo; of the album &laquo; Pretty big things &raquo; Check it out !</p></blockquote>",
 			"icon" : "music",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
@@ -89,7 +89,7 @@ $(document).ready(function () {
 		},
 		"release_date" : {
 			"title" : "Release date",
-			"text" : "<blockquote><p>Our album &lquote; Big Data &rquote; will be release on the 20th of May !</p></blockquote>",
+			"text" : "<blockquote><p>Our album &laquo; Big Data &raquo; will be release at the end of this month !</p></blockquote>",
 			"icon" : "ok",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#23d300"
@@ -177,9 +177,9 @@ $(document).ready(function () {
 
 			$('#statsContent').empty();
 
-			var statsText = "This timeline was computed by aggregating the promotion timeline of " + data.stats.artists_count + " artists"; //(avg. similarity : " + data.stats.average_sim + "). <br />";
+			var statsText = "This timeline was computed by aggregating the promotion timeline of " + data.stats.artists_count + " artists<br />"; //(avg. similarity : " + data.stats.average_sim + "). <br />";
 			statsText += "Average similarity over all the artists of our database : " + data.stats.average_sim_overall + "<br />";
-			statsText += "Artist best match : " + data.stats.best_match + "<br />";
+			statsText += "Artist best match : &laquo;" + data.stats.best_match + "&raquo;<br />";
 			$('#statsContent').html(statsText);
 
 			$('#timelineContent').empty();
