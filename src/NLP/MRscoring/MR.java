@@ -149,9 +149,6 @@ public class MR {
         jobconf1.setMapperClass(Map.class);
         jobconf1.setReducerClass(Reduce.class);
 
-        jobconf1.setNumMapTasks(2);
-        jobconf1.setNumReduceTasks(2);
-
         jobconf1.setInputFormat(TextInputFormat.class);
         jobconf1.setOutputFormat(TextOutputFormat.class);
 
