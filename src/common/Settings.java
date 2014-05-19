@@ -21,7 +21,7 @@ public class Settings {
 
     properties = new Properties();
     try {
-      properties.load(new FileInputStream("credentials.properties"));
+      properties.load(Settings.class.getResourceAsStream("/credentials.properties"));
     } catch (IOException e) {
       e.printStackTrace();
     }
