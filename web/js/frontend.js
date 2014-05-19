@@ -5,9 +5,7 @@ $(document).ready(function () {
 	var events = {
 		"days_countdown" : {
 			"title" : "Countdown before the release",
-			"text" : "<blockquote>
-  				<p>Only 15 days before our new album ! Stay tuned !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Only 15 days before our new album ! Stay tuned !</p></blockquote>",
 			"icon" : "time",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
@@ -21,99 +19,77 @@ $(document).ready(function () {
 		},
 		"days_press_campaign" : {
 			"title" : "Press campaign",
-			"text" : "<blockquote>
-  				<p>Check us in this new press article in the Guardian.</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Check us in this new press article in the Guardian.</p></blockquote>",
 			"icon" : "comment",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_presale_campaign" : {
 			"title" : "Presale campaign",
-			"text" : "<blockquote>
-  				<p>Preorder our new album now for only 10.- !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Preorder our new album now for only 10.- !</p></blockquote>",
 			"icon" : "calendar",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_interview" : {
 			"title" : "Interview",
-			"text" : "<blockquote>
-  				<p>Check our interview tonight on the Late Night Show !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Check our interview tonight on the Late Night Show !</p></blockquote>",
 			"icon" : "bullhorn",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_single_release" : {
 			"title" : "Release of a single",
-			"text" : "<blockquote>
-  				<p>We released the single &lquote; Big Data &rquote; of the album &lquote; Pretty big things &rquote; Check it out !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>We released the single &lquote; Big Data &rquote; of the album &lquote; Pretty big things &rquote; Check it out !</p></blockquote>",
 			"icon" : "music",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_cd_release_show" : {
 			"title" : "CD release show",
-			"text" : "<blockquote>
-  				<p>Tonight to celebrate the release of our CD we are doing a show at Hyde Park</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Tonight to celebrate the release of our CD we are doing a show at Hyde Park</p></blockquote>",
 			"icon" : "eject",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_first_tweet" : {
 			"title" : "First tweet about the album",
-			"text" : "<blockquote>
-  				<p>We are working very hard on our new album.</p>
-				</blockquote>",
+			"text" : "<blockquote><p>We are working very hard on our new album.</p></blockquote>",
 			"icon" : "bullhorn",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#00a8ff"
 		},
 		"days_first_fb" : {
 			"title" : "First facebook post about the album",
-			"text" : "<blockquote>
-  				<p>Stay tuned for our new album very soon !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Stay tuned for our new album very soon !</p></blockquote>",
 			"icon" : "thumbs-up",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#002ec6"
 		},
 		"days_announcement" : {
 			"title" : "Announcement about the album",
-			"text" : "<blockquote>
-  				<p>We are proud to announce the making of our new album.</p>
-				</blockquote>",
+			"text" : "<blockquote><p>We are proud to announce the making of our new album.</p></blockquote>",
 			"icon" : "bullhorn",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_album_cover" : {
 			"title" : "Album cover artwork",
-			"text" : "<blockquote>
-  				<p>Check our amazing cover artwork made by the great artist Lolita Mujer.</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Check our amazing cover artwork made by the great artist Lolita Mujer.</p></blockquote>",
 			"icon" : "picture",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"days_teaser" : {
 			"title" : "Teaser",
-			"text" : "<blockquote>
-  				<p>Today we released a teaser for our new album, check it out !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Today we released a teaser for our new album, check it out !</p></blockquote>",
 			"icon" : "film",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
 		},
 		"release_date" : {
 			"title" : "Release date",
-			"text" : "<blockquote>
-  				<p>Our album &lquote; Big Data &rquote; will be release on the 20th of May !</p>
-				</blockquote>",
+			"text" : "<blockquote><p>Our album &lquote; Big Data &rquote; will be release on the 20th of May !</p></blockquote>",
 			"icon" : "ok",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#23d300"
