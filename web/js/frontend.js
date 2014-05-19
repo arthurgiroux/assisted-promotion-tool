@@ -112,8 +112,13 @@ $(document).ready(function () {
 		element.append(timelineBadge);
 		panelHeading.append('<h4 class="timeline-title">' + event.title + '</h4>');
 
+		var today = new Date();
+
 		var dateString = months[data.date.getMonth()] + " " + data.date.getDate() + ", " + data.date.getFullYear();
 		panelHeading.append('<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> on ' + dateString + '</small></p>');
+		if (data.date < today) {
+			panelHeading.css("color", "red");
+		}
 		panelBody.append('<p>' + event.text + '</p>');
 
 		element.append(panel);
@@ -196,8 +201,9 @@ $(document).ready(function () {
 					date : d
 				}, i%2 == 1));
 			}
-			console.log(oldestDate, new Date(), oldestDate < new Date());
-			if (oldestDate < new Date()) {
+
+			var today = new Date();
+			if (oldestDate < today) {
 				var warning = $('<div class="alert alert-danger"><b>Warning</b> You should release your album later, some recommended events are in the past !</div>')
 				$('#statsContent').append(warning);
 			}
