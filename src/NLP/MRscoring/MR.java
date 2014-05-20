@@ -149,9 +149,6 @@ public class MR {
         jobconf1.setMapperClass(Map.class);
         jobconf1.setReducerClass(Reduce.class);
 
-        jobconf1.setNumMapTasks(2);
-        jobconf1.setNumReduceTasks(2);
-
         jobconf1.setInputFormat(TextInputFormat.class);
         jobconf1.setOutputFormat(TextOutputFormat.class);
 
@@ -173,6 +170,7 @@ public class MR {
           DBObject item = cursor.next();
             for (Event.TYPE everyType : Event.TYPE.values()) {
                 if (item.get("post_id_facebook_" + everyType.name().toLowerCase()) != null) {
+                  ObjectId IdEvent = (ObjectId) item.get("_id");
                   ObjectId Id = (ObjectId) item.get("post_id_facebook_" + everyType.name().toLowerCase());
                   System.out.println("FOUND ONE, ID IS : " + Id);
                   DBObject post = db.findFBPostsById(Id);
@@ -181,11 +179,11 @@ public class MR {
                   boolean first = true;
                   for (Object comment : commentsList) {
                     if (first) {
-                      text += Id.toString() + "_" + everyType.name().toLowerCase();
+                      text += IdEvent.toString() + "_" + everyType.name().toLowerCase();
                       first = false;
                     }
                     String mess = (String) ((DBObject) comment).get("message");
-                    text += "#|#" + mess.replace("\n", ".");
+                    text += "#|#" + mess.replace("\r\n", ".").replace("\n", ".");
                   }
                   if (!first) {
                     text += "\n";
