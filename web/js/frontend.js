@@ -179,7 +179,7 @@ $(document).ready(function () {
 
 
 			var statsText = "<p>This timeline was computed by aggregating the promotion timeline of <b>" + data.stats.artists_count + "</b> artists<br />"; //(avg. similarity : " + data.stats.average_sim + "). <br />";
-			statsText += "Average similarity over all the artists of our database : " + data.stats.average_sim_overall + "<br />";
+			statsText += "Average similarity over all the artists of our database : <b>" + data.stats.average_sim_overall + "</b><br />";
 			statsText += "Artist best match : <h4>&laquo;" + data.stats.best_match + "&raquo;</h4><br /></p>";
 			$('#statsContent').html(statsText);
 
