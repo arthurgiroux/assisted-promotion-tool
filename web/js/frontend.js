@@ -167,9 +167,9 @@ $(document).ready(function () {
 		}).done(function (data) {
 			$('#statsContent').empty();
 
-			var statsText = "This timeline was computed by aggregating the promotion timeline of " + data.stats.artists_count + " artists (avg. similarity : " + data.stats.average_sim + "). <br />";
+			var statsText = "This timeline was computed by aggregating the promotion timeline of <b>" + data.stats.artists_count + "</b> artists (avg. similarity : <b>" + data.stats.average_sim + "</b>). <br />";
 			statsText += "Average sim over all artists : " + data.stats.average_sim_overall + "<br />";
-			statsText += "Artist best match : " + data.stats.best_match + "<br />";
+			statsText += "Artist best match : <h5>" + data.stats.best_match + "<h5><br />";
 			$('#statsContent').html(statsText);
 
 			$('#timelineContent').empty();
