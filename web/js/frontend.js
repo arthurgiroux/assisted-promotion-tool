@@ -12,7 +12,7 @@ $(document).ready(function () {
 		},
 		"days_video_clip" : {
 			"title" : "Video clip",
-			"text" : "Announce a new video clip and put it on Youtube",
+			"text" : "<blockquote><p>Our new video clip for our latest album is up on Youtube.</p></blockquote>",
 			"icon" : "facetime-video",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#000000"
@@ -178,9 +178,9 @@ $(document).ready(function () {
 			$('#statsContent').empty();
 
 
-			var statsText = "This timeline was computed by aggregating the promotion timeline of <b>" + data.stats.artists_count + "</b> artists<br />"; //(avg. similarity : " + data.stats.average_sim + "). <br />";
+			var statsText = "<p>This timeline was computed by aggregating the promotion timeline of <b>" + data.stats.artists_count + "</b> artists<br />"; //(avg. similarity : " + data.stats.average_sim + "). <br />";
 			statsText += "Average similarity over all the artists of our database : " + data.stats.average_sim_overall + "<br />";
-			statsText += "Artist best match : <h5>&laquo;" + data.stats.best_match + "&raquo;</h5><br />";
+			statsText += "Artist best match : <h4>&laquo;" + data.stats.best_match + "&raquo;</h4><br /></p>";
 			$('#statsContent').html(statsText);
 
 			$('#timelineContent').empty();
