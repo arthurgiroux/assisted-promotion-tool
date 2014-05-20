@@ -89,7 +89,7 @@ $(document).ready(function () {
 		},
 		"release_date" : {
 			"title" : "Release date",
-			"text" : "<blockquote><p>Our album &laquo; Big Data &raquo; will be release at the end of this month !</p></blockquote>",
+			"text" : "<blockquote><p>Our album &laquo; Big Data &raquo; will be released at the end of this month !</p></blockquote>",
 			"icon" : "ok",
 			"color" : "#FFFFFF",
 			"bgcolor" : "#23d300"
